@@ -1,21 +1,20 @@
 <template>
   <div class="page-header">
-    <div class="title">{{title}}</div>
+    <div class="title">{{$route.meta.title}}</div>
     <el-button type="info"
                plain
+               v-if="$route.path !='/index'"
                @click="goBack">返回</el-button>
   </div>
 </template>
-
-
-
 <script>
+
 export default {
-  props: ['title', 'refreshBtn', 'gobackBtn'],
   methods: {
     goBack() {
-      this.$router.go(-1)
-    }
+      this.$router.back(-1)
+    },
+
   }
 }
 </script>
@@ -40,9 +39,9 @@ export default {
 .title {
   float: left;
   margin-left: 10px;
-  line-height:36px;
-  font-size:16px;
-  font-weight:600;
+  line-height: 36px;
+  font-size: 16px;
+  font-weight: 600;
   vertical-align: middle;
 }
 .el-button {

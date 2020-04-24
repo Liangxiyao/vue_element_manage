@@ -39,8 +39,8 @@ export default {
   data() {
     return {
       param: {
-        username: '1234',
-        password: '1234',
+        username: '',
+        password: '',
       },
       rules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -49,19 +49,18 @@ export default {
     };
   },
   mounted() {
-    this._getCodeHandle();
+    // this._getCodeHandle();
   },
   methods: {
     _getCodeHandle() {
       apiGetCode().then((result) => {
-        console.log(result)
         if (result.code === 200) {
           let { verifyKey, uuid } = result;
           storage.set('verifyKey', verifyKey)
           storage.set('uuid', uuid)
         }
       }).catch((err) => {
-         console.log(err.message);
+        console.log(err.message);
       });
     },
     submitForm() {
@@ -71,17 +70,17 @@ export default {
           let data = {
             username,
             password,
-            code: storage.get('verifyKey') || '',
-            uuid: storage.get('uuid') || ''
+            //code: storage.get('verifyKey') || '',
+            //uuid: storage.get('uuid') || ''
           }
           apiLogin(data).then((result) => {
             if (result.code == 200) {
               this.$message.success('登录成功');
               storage.set("users", {
                 username,
-                token:result.token
+                token: result.token
               })
-              this.$router.push('/');
+              this.$router.replace('/index');
             } else {
               this.$message.success(result.msg);
             }
@@ -94,7 +93,7 @@ export default {
         }
       });
     }
-    
+
   },
 };
 </script>
@@ -104,7 +103,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  background-image: url(../../assets/img/login-bg.jpg);
+  background: url(../../assets/img/login-bg.jpg);
   background-size: 100%;
 }
 .ms-title {
@@ -112,7 +111,8 @@ export default {
   line-height: 50px;
   text-align: center;
   font-size: 20px;
-  color: #fff;
+  color: #000;
+  font-weight: 600;
   border-bottom: 1px solid #ddd;
 }
 .ms-login {

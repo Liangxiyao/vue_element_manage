@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: '/',
+  publicPath: '/manage',
   outputDir: 'dist',
   configureWebpack: {
     resolve: {
@@ -20,11 +20,11 @@ module.exports = {
   // },
   devServer: {
     proxy: {   // 代理
-      '/api': {
+      '/': {
         target: 'http://123.56.99.109:8080',  // 代理路径
         changeOrigin: true, // 是否跨域
         pathRewrite: {
-          '^/api' : ''
+          '^/' : ''
         }
       }
     }

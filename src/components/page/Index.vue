@@ -9,11 +9,79 @@
                class="clearfix">
             <span>实时抽奖</span>
           </div>
-          <div v-for="o in 4"
-               :key="o"
-               class="card-item">
+          <div class="card-item">
             <span class="name">今日参与人数</span>
-            <span class="number">200</span>
+            <span class="number">{{dataItem.dayNumber}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">今日抽奖金额</span>
+            <span class="number">{{dataItem.dayAmount}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">本周参与人数</span>
+            <span class="number">{{dataItem.weekNumber}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">本周抽奖金额</span>
+            <span class="number">{{dataItem.weekNumber}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">本月参与人数</span>
+            <span class="number">{{dataItem.monthNumber}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">本月抽奖金额</span>
+            <span class="number">{{dataItem.monthNumber}}</span>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card class="box-card"
+                 shadow="hover">
+          <div slot="header"
+               class="clearfix">
+            <span>平均类</span>
+          </div>
+          <div class="card-item">
+            <span class="name">平均今日获得活力红包金额</span>
+            <span class="number">{{dataItem.dayVigourAverage}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">达星红包金额</span>
+            <span class="number">{{dataItem.dayStandardAverage}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">平均本周获得活力红包金额</span>
+            <span class="number">{{dataItem.weekVigourAverage}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">达星红包金额</span>
+            <span class="number">{{dataItem.weekStandardAverage}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">平均本月获得活力红包金额</span>
+            <span class="number">{{dataItem.monthVigourAverage}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">达星红包金额</span>
+            <span class="number">{{dataItem.monthStandardAverage}}</span>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card class="box-card"
+                 shadow="hover">
+          <div slot="header"
+               class="clearfix">
+            <span>剩余库存</span>
+          </div>
+          <div class="card-item">
+            <span class="name">剩余金额</span>
+            <span class="number">{{dataItem.leftAmount}}</span>
+          </div>
+          <div class="card-item">
+            <span class="name">预计剩余可参与人数</span>
+            <span class="number">{{dataItem.leftNumber}}</span>
           </div>
         </el-card>
       </el-col>
@@ -24,16 +92,16 @@
            class="clearfix">
         最近一周参与量统计
       </div>
-
-        <div id="myChart" ref="myChart"
-             :style="{width: '100%', height: '360px'}"></div>
+      <div id="myChart"
+           ref="myChart"
+           :style="{width: '100%', height: '360px'}"></div>
 
     </el-card>
   </div>
 </template>
 
 <script>
-//import {  } from '@/utils/api';
+import { apiIndexInfo } from '@/utils/api';
 
 let echarts = require('echarts/lib/echarts')
 require('echarts/lib/chart/line')
@@ -42,42 +110,53 @@ require('echarts/lib/chart/line')
 export default {
   data() {
     return {
-      dataItem: [
-        {
-          title: '实时抽奖',
-          content: []
-        }
-      ]
+      dataItem: {}
     }
   },
-  mounted () {
-    this.drawLine();
+  mounted() {
+    this._getData()
 
   },
   methods: {
+    _getData() {
+      apiIndexInfo().then((result) => {
+        if (result.code === 200) {
+          this.dataItem = result.data
+          this.drawLine();
+        } else {
+          this.$message.error(result.msg)
+        }
+      }).catch((err) => {
+        console.log(err.message)
+      });
+    },
     drawLine() {
+      let { sevenDayMap } = this.dataItem
+      console.log(sevenDayMap)
+      let xData = sevenDayMap.map((item) => item.date)
+      let yData = sevenDayMap.map((item) => item.count)
       //初始化echarts实例
       let myChart = echarts.init(this.$refs.myChart);
       // 绘制图表
       myChart.setOption({
         xAxis: {
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+          data: xData
         },
         yAxis: {
-          type:'value',
-          name:'人数',
+          type: 'value',
+          name: '人数',
         },
-        axisLabel:{
-          color:'#666'
+        axisLabel: {
+          color: '#666'
         },
         series: [{
           type: 'line',
-          data: [150, 20, 300, 100, 210, 120, 100],
-          itemStyle:{
-            color:'#409EFF'
+          data: yData,
+          itemStyle: {
+            color: '#409EFF'
           },
-          label:{
-            show:true
+          label: {
+            show: true
           }
         }]
       });
@@ -96,6 +175,7 @@ export default {
 .box-card >>> .card-item {
   display: flex;
   line-height: 25px;
+  font-size:14px;
 }
 .box-card >>> .card-item:nth-of-type(2n) {
   margin-bottom: 30px;
@@ -111,7 +191,7 @@ export default {
 .module2 {
   margin-top: 10px;
 }
-.module2 >>> .el-card__body{
-  max-width:800px;
+.module2 >>> .el-card__body {
+  max-width: 800px;
 }
 </style>

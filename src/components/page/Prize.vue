@@ -4,9 +4,11 @@
               class="mytable"
               border
               style="width: 100%">
-      <el-table-column type="index"
-                       label="编号"
+      <el-table-column label="编号"
                        width="80">
+        <template v-slot="scope">
+          <span>{{scope.$index+(pagination.pageNum - 1) * pagination.pageSize + 1}} </span>
+        </template>
       </el-table-column>
       <el-table-column prop="awardName"
                        label="奖项名称">
@@ -27,7 +29,7 @@
                        label="活动起止时间"
                        width="200">
         <template v-slot="scope">
-          <span>{{scope.row.beginDate+ ' - ' +scope.row.endDate}}</span>
+          <span>{{scope.row.beginDate+ ' 至 ' +scope.row.endDate}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="status"
@@ -40,20 +42,20 @@
       <el-table-column label="操作"
                        width="220">
         <template v-slot="scope">
-          <el-button type="text"
+          <!-- <el-button type="text"
                      v-if="scope.row.status==1"
                      @click="handleAddtime(scope.$index,scope.row)">延长时间</el-button>
           <el-button type="text"
                      v-if="scope.row.status==1"
-                     @click="handleAdd(scope.$index)">追加</el-button>
+                     @click="handleAdd(scope.$index)">追加</el-button> -->
           <el-button type="text"
                      v-if="scope.row.status == 1"
-                     @click="handleStop(scope.$index)">停止</el-button>
+                     @click="handleStop(scope.$index,scope.row)">停止</el-button>
           <el-button type="text"
                      @click="handleLook(scope.row)">查看</el-button>
           <el-button type="text"
                      v-if="scope.row.status != 0"
-                     @click="handleExport(scope.$index)">导出数据</el-button>
+                     @click="handleExport(scope.row)">导出数据</el-button>
           <el-button type="text"
                      v-if="scope.row.status == 0"
                      @click="handleDelete(scope.$index,scope.row.id)">删除</el-button>
@@ -63,9 +65,9 @@
     <div class="bt">
       <el-button type="primary"
                  @click="toAdd">添加活动</el-button>
-      <my-pagination :pagination="pagination"></my-pagination>
+      <my-pagination :pagination="pagination"
+                     @changePage="changePage"></my-pagination>
     </div>
-
     <!-- 追加弹出框 -->
     <el-dialog title="追加信息"
                class="addDialog"
@@ -73,48 +75,50 @@
                :visible.sync="addVisible"
                width="460px">
       <el-form ref="form"
-               :model="addForm">
+               :rules="addRules"
+               :model="addForm"
+               label-width="100px">
         <el-form-item label="追加金额"
-                      label-width="100px">
-          <el-input v-model="addForm.money"></el-input>
+                      prop="awardAmount">
+          <el-input v-model="addForm.awardAmount"></el-input>
           <div class="tip flex-column">
             <div>当前剩余活动金额：50000</div>
             <div>追加后金额：50000</div>
           </div>
         </el-form-item>
         <el-form-item label="追加人数"
-                      label-width="100px">
-          <el-input v-model="addForm.number"></el-input>
+                      prop="expectNumbers">
+          <el-input v-model="addForm.expectNumbers"></el-input>
           <div class="tip flex-column">
             <div>当前剩余参与人数：100</div>
             <div>追加后人数：500</div>
           </div>
         </el-form-item>
         <el-form-item label="红包金额比"
-                      label-width="100px">
-          <el-input v-model="addForm.ratio"></el-input>
+                      prop="envelopeProportion">
+          <el-input v-model="addForm.envelopeProportion"></el-input>
           <div class="tip flex-column">
             <div>活力红包 ：达星红包</div>
             <div>当前金额比：0.5</div>
           </div>
         </el-form-item>
         <el-form-item label="开始衰减阶段"
-                      label-width="100px">
-          <el-input v-model="addForm.percent"></el-input>
+                      prop="weakenLine">
+          <el-input v-model="addForm.weakenLine"></el-input>
           <div class="tip flex-column">
             <div>当前衰减比例：90%</div>
           </div>
         </el-form-item>
         <el-form-item label="随机组成人员数"
-                      label-width="100px">
-          <el-input v-model="addForm.randomNum"></el-input>
+                      prop="groupNumber">
+          <el-input v-model="addForm.groupNumber"></el-input>
           <div class="tip flex-column">
             <div>当前衰减比例：90%</div>
           </div>
         </el-form-item>
         <el-form-item label="浮动金额比例"
-                      label-width="100px">
-          <el-input v-model="addForm.floatPercent"></el-input>
+                      prop="floatRange">
+          <el-input v-model="addForm.floatRange"></el-input>
           <div class="tip flex-column">
             <div>当前衰减比例：90%</div>
           </div>
@@ -167,13 +171,16 @@
                center
                :visible.sync="exportVisible"
                width="400px">
-      <el-form ref="form">
-        <el-form-item label="">
-          <el-date-picker v-model="oldDate"
+      <el-form ref="exportForm"
+               :model="exportForm">
+        <el-form-item prop="exportDate"
+                      :rules="{ required: true, message: '请选择起止时间', trigger: 'blur' }">
+          <el-date-picker v-model="exportForm.exportDate"
                           type="daterange"
                           range-separator="至"
                           start-placeholder="开始日期"
-                          end-placeholder="结束日期">
+                          end-placeholder="结束日期"
+                          :picker-options="exportPickerOptions">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -181,7 +188,7 @@
             class="dialog-footer">
         <el-button @click="exportVisible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="saveExport">确 定</el-button>
+                   @click="saveExport('exportForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -189,7 +196,7 @@
 
 <script>
 import storage from '@/utils/storage.js';
-import { apiAwardList, apiDeleteAward } from '@/utils/api.js';
+import { apiAwardList, apiDeleteAward, apiStopAward, apiExportRecord } from '@/utils/api.js';
 import MyPagination from '@/components/common/Pagination';
 export default {
   components: {
@@ -197,38 +204,42 @@ export default {
   },
   data() {
     return {
+      awardId: '', //当前活动id
       editVisible: false,
       addTimeVisible: false,
       addVisible: false,
       exportVisible: false,
       addForm: {},
-      tableData: [
-        {
-          awardName: '活力红包',
-          totalmoney: '20000',
-          manAccount: '100',
-          avermoney: '200',
-          percent: '20%',
-          date: '2020.3.2-2020.3.15',
-          status: 0,
-        }
-      ],
-      currentPage: 1,
+      addRules: [],
+      tableData: [],
       oldDate: [],
-      newDate: '',
+      newDate: [],
+      exportDateRange: [],
+      exportForm: {
+        exportDate: []
+      },
       pagination: {
         pageNum: 1,
         pageSize: 10,
         total: 0,
+      },
+      exportPickerOptions: {
+        //导出数据日期范围
+        disabledDate: (time) => {
+          let date = time.getTime()
+          let start = new Date(this.exportDateRange[0]).getTime()
+          let end = new Date(this.exportDateRange[1]).getTime()
+          return date < start || date > end
+        }
       }
     }
   },
   created() {
-    this.getAwardList()
+    this._getAwardList()
   },
   methods: {
     //获取列表
-    getAwardList() {
+    _getAwardList() {
       let { pageNum, pageSize } = this.pagination
       apiAwardList({
         pageNum,
@@ -238,7 +249,7 @@ export default {
           let { total, rows } = result
           this.pagination.total = total
           this.tableData = rows
-        }else{
+        } else {
           this.$message.error(result.msg);
         }
       }).catch((err) => {
@@ -281,29 +292,67 @@ export default {
 
     },
     // 停止操作
-    handleStop() {
+    handleStop(index, row) {
       // 二次确认删除
       this.$confirm('确定要停止该活动吗？', '', {
         center: true,
         customClass: 'stopDialog'
+      }).then(() => {
+        apiStopAward({ awardId: row.id }).then((result) => {
+          if (result.code === 200) {
+            this.$set(this.tableData[index], "status", "3")
+            this.$message.success('活动已停止')
+          } else {
+            this.$message.error(result.msg)
+          }
+        }).catch((err) => {
+          console.log(err.message)
+        });
       })
-        .then(() => {
-          this.$message.success('该活动已停止');
-          // this.tableData.splice(index, 1);
-        })
-        .catch(() => { });
     },
+    //查看数据
     handleLook(row) {
       storage.set("disabled", true)
       storage.set("award", row)
       this.$router.push('/addprize')
     },
     //导出数据
-    handleExport(index) {
+    handleExport(row) {
       this.exportVisible = true
-      console.log(index)
+      this.awardId = row.awardId
+      this.exportDateRange = [row.beginDate, row.endDate]
     },
-    saveExport() { },
+    //确认导出
+    saveExport(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let { beginDate, endDate } = this.exportForm.exportDate
+          apiExportRecord({
+            awardId: this.awardId,
+            beginDate,
+            endDate
+          }).then((result) => {
+            if (result.code === 200) {
+              this.$message.success('导出成功')
+              this.exportVisible = false
+              window.location.href = result.msg
+              this.$refs[formName].resetFields();
+          
+            } else {
+              this.$message.error(result.msg)
+            }
+          }).catch((err) => {
+            console.log(err.message)
+          });
+        } else {
+          return false
+        }
+      })
+    },
+    changePage(val) {
+      this.pagination.pageNum = val
+      this._getAwardList()
+    },
     //跳转添加
     toAdd() {
       storage.set("disabled", false)

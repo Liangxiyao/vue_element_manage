@@ -5,6 +5,7 @@ import storage from '@/utils/storage';
 axios.defaults.timeout = 10000;
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 
+// let baseUrl = ''
 let requestCount = 0    //请求数量
 //显示loading
 export function ShowLoading() {

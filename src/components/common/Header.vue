@@ -22,7 +22,7 @@
           <span class="el-dropdown-link">
             {{ username }}
             <i class="el-icon-caret-bottom"></i>
-          </span> 
+          </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="editPwd">修改密码</el-dropdown-item>
             <el-dropdown-item divided
@@ -38,21 +38,21 @@
                center
                width="30%">
       <el-form ref="editform"
-               :model="editform">
-        <el-form-item label="账号ID"
-                      label-width="70px">
+               :rules="editRules"
+               :model="editform"
+               label-width="70px">
+        <el-form-item label="账号ID">
           <el-input v-model="editform.userName"
                     disabled></el-input>
         </el-form-item>
-        <el-form-item label="昵称"
-                      label-width="70px">
+        <el-form-item label="昵称">
           <el-input v-model="editform.nickName"
                     disabled></el-input>
         </el-form-item>
         <el-form-item label="密码"
-                      label-width="70px">
+                      prop="password">
           <el-input v-model="editform.password"
-                    placeholder="1-8位数字英文组成"></el-input>
+                    placeholder="6-16位数字英文组成"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer"
@@ -67,18 +67,10 @@
 <script>
 import storage from '@/utils/storage';
 import bus from './bus';
-import { apiExit, apiEditUser,apiUserInfo } from '@/utils/api';
+import { apiExit, apiEditUser, apiUserInfo } from '@/utils/api';
 
 export default {
   data() {
-    let checkPwd = (rule, value, callback) => {
-      let reg = /^[0-9a-zA-Z]+$/;
-      if (value.test(reg)) {
-        callback(new Error('密码为至少为6位，由数字和字母组成'));
-      } else {
-        callback()
-      }
-    }
     return {
       collapse: false,
       fullscreen: false,
@@ -91,7 +83,18 @@ export default {
       editRules: {
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 16, validator: checkPwd, trigger: 'blur' }
+          { min: 6, max: 16, message: "密码长度为6-16个字符", trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              let reg = /^[a-zA-Z0-9]*(([a-zA-Z]+[0-9]+)|([0-9]+[a-zA-Z]+))[a-zA-Z0-9]*$/;
+              if (!reg.test(value)) {
+                callback(new Error('密码必须由数字和字母组成'));
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur'
+          }
         ]
       }
     };
@@ -120,16 +123,15 @@ export default {
         }).catch((err) => {
           this.$message.error(err.message);
         });
-      }else if(command == 'editPwd'){
+      } else if (command == 'editPwd') {
         apiUserInfo().then((result) => {
-          if(result.code === 200){
-            console.log(result)
+          if (result.code === 200) {
             this.editVisible = true
-            let {userId,userName,nickName} = result.user
+            let { userId, userName, nickName } = result.user
             this.editform = {
-              userId,userName,nickName
+              userId, userName, nickName
             }
-          }else{
+          } else {
             this.$message.error(result.msg)
           }
         }).catch((err) => {
@@ -142,11 +144,6 @@ export default {
       this.collapse = !this.collapse;
       bus.$emit('collapse', this.collapse);
     },
-    // 修改密码
-    // handleEdit(row) {
-    //   this.editVisible = true
-    //   this.editform = row
-    // },
     //修改完成
     saveEdit(formName) {
       this.$refs[formName].validate((valid) => {
@@ -158,6 +155,9 @@ export default {
           }).then((result) => {
             if (result.code === 200) {
               this.$message.success('密码修改成功');
+              this.editVisible = false
+              this.$refs[formName].resetFields();
+
             } else {
               this.$message.error(result.msg);
             }

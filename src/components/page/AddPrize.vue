@@ -1,105 +1,129 @@
 <template>
   <div class="addprize">
-    <el-form :model="ruleForm"
+    <el-form :model="formData"
              :rules="rules"
-             ref="ruleForm"
+             ref="formData"
              label-width="180px"
-             class="ruleForm">
-      <el-form-item label="活动名称"
+             class="formData">
+      <el-form-item class="block"
+                    label="活动名称"
                     prop="awardName">
-        <el-input v-model="ruleForm.awardName"
-                  :disabled="noEdit"></el-input>
+        <el-input v-model="formData.awardName"
+                  :disabled="noEdit"
+                  placeholder="请输入活动名称"
+                  @blur="caculateHandle"></el-input>
       </el-form-item>
-      <el-form-item label="启动金额"
-                    prop="awardAmount">
-        <el-input v-model="ruleForm.awardAmount"
-                  :disabled="noEdit"></el-input>
-      </el-form-item>
-      <el-form-item label="活动时间"
+      <el-form-item class="block"
+                    label="活动时间"
                     prop="date">
-        <el-date-picker v-model="ruleForm.date"
+        <el-date-picker v-model="formData.date"
                         value-format="yyyy-MM-dd"
                         type="daterange"
                         :disabled="noEdit"
                         range-separator="至"
                         start-placeholder="开始日期"
-                        end-placeholder="结束日期">
+                        end-placeholder="结束日期"
+                        :picker-options="pickerOptions"
+                        @blur="caculateHandle">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="参与活动人力预计"
+      <el-form-item label="预计参与抽奖人数"
                     prop="expectNumbers">
-        <el-input v-model="ruleForm.expectNumbers"
-                  :disabled="noEdit"></el-input>
+        <el-input v-model="formData.expectNumbers"
+                  :disabled="noEdit"
+                  placeholder="请输入预计参奖人数"
+                  @blur="caculateHandle"></el-input>
+      </el-form-item>
+      <el-form-item label="预计成功领取人数"
+                    prop="expectSuccessNumbers">
+        <el-input v-model="formData.expectSuccessNumbers"
+                  :disabled="noEdit"
+                  placeholder="请输入预计成功领取人数"
+                  @blur="caculateHandle"></el-input>
       </el-form-item>
       <el-form-item label="活力红包与达星红包比"
                     prop="envelopeProportion">
-        <el-input v-model="ruleForm.envelopeProportion"
-                  placeholder=""
-                  :disabled="noEdit"></el-input>
-      </el-form-item>
-      <el-form-item label="预计活力红包发送金额"
-                    class="inline-block">
-        <el-input :value="ruleForm.huo1"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="预计达星红包发送金额"
-                    class="inline-block">
-        <el-input :value="ruleForm.da1"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="预计活力红包获得区间"
-                    class="inline-block">
-        <el-input :value="ruleForm.huo2"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="预计达星红包获得区间"
-                    class="inline-block">
-        <el-input :value="ruleForm.da2"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="预计活力红包平均金额"
-                    class="inline-block">
-        <el-input :value="ruleForm.huo3"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="预计达星红包平均金额"
-                    class="inline-block">
-        <el-input :value="ruleForm.da3"
-                  disabled
-                  placeholder="提交人力预计后系统自动计算"></el-input>
-      </el-form-item>
-      <el-form-item label="开始衰减阶段"
-                    prop="weakenLine">
-        <el-input v-model="ruleForm.weakenLine"
+        <el-input v-model="formData.envelopeProportion"
+                  placeholder="请输入比值,例如 0.5,最多保留两位小数"
                   :disabled="noEdit"
-                  placeholder="请输入开始衰减百分比，如80%"></el-input>
+                  @blur="caculateHandle"></el-input>
       </el-form-item>
       <el-form-item label="随机组成员数"
                     prop="groupNumber">
-        <el-input v-model="ruleForm.groupNumber"
+        <el-input v-model="formData.groupNumber"
                   :disabled="noEdit"
+                  @blur="caculateHandle"
                   placeholder="请输入随机组成人员数"></el-input>
       </el-form-item>
       <el-form-item label="浮动金额比例"
                     prop="floatRange">
-        <el-input v-model="ruleForm.floatRange"
+        <el-input v-model="formData.floatRange"
                   :disabled="noEdit"
-                  placeholder="请输入比例"></el-input>
+                  @blur="caculateHandle"
+                  placeholder="浮动比例为0-1之间"></el-input>
       </el-form-item>
-      <el-form-item v-if="noEdit && ruleForm.status == 0">
+      <el-form-item label="开始衰减阶段"
+                    prop="weakenLine">
+        <el-input v-model="formData.weakenLine"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"
+                  placeholder="请输入开始衰减百分比，如80%"></el-input>
+      </el-form-item>
+      <el-form-item label="启动金额"
+                    prop="startAwardAmount">
+        <el-input v-model="formData.startAwardAmount"
+                  :disabled="noEdit"
+                  placeholder="请输入启动金额"
+                  @blur="caculateHandle"></el-input>
+      </el-form-item>
+      <el-form-item class="block"
+                    label="总金额"
+                    prop="awardAmount">
+        <el-input :value="formData.awardAmount"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计活力红包发送金额">
+        <el-input :value="formData.vigourAmount"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计达星红包发送金额">
+        <el-input :value="formData.standardAmount"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计活力红包获得区间">
+        <el-input :value="formData.vigourRange"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计达星红包获得区间">
+        <el-input :value="formData.standardRange"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计活力红包平均金额">
+        <el-input :value="formData.vigourAverage"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计达星红包平均金额">
+        <el-input :value="formData.standardAverage"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item v-if="noEdit && formData.status == 0"
+                    class="button-wrap">
         <el-button type="primary"
                    @click="toEdit()">去修改</el-button>
         <el-button @click="$router.push('/prize')">取消</el-button>
       </el-form-item>
-      <el-form-item v-if="!noEdit">
+      <el-form-item v-if="!noEdit"
+                    class="button-wrap">
         <el-button @click="$router.push('/prize')">取消</el-button>
         <el-button type="primary"
-                   @click="onSubmit('ruleForm')">确定</el-button>
+                   @click="onSubmit('formData')">确定</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -107,28 +131,30 @@
 
 <script>
 import storage from '@/utils/storage.js';
-import { apiAddAward } from '@/utils/api.js';
+import { apiAddAward, apiCaculate, apiAwardsTime } from '@/utils/api.js';
 export default {
   data() {
     return {
-      ruleForm: {
-        status: 0,
+      formData: {
         awardName: '',
-        awardAmount: '',
+        startAwardAmount: '',
         beginDate: '',
         endDate: '',
         expectNumbers: '',
+        expectSuccessNumbers: '',
         envelopeProportion: '',
         floatRange: '',
         groupNumber: '',
         weakenLine: '',
-        date:[]
+        date: []
       },
+      havedDate: [], //已经存在的活动时间
+      isCaculate: false, //是否已经计算
       rules: {
         awardName: [
           { required: true, message: '请输入活动名称', trigger: 'blur' },
         ],
-        awardAmount: [{
+        startAwardAmount: [{
           required: true,
           validator: (rule, value, callback) => {
             const res = /^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/;
@@ -151,7 +177,7 @@ export default {
               callback()
             }
           },
-          trigger: 'change'
+          trigger: 'blur'
         }],
         expectNumbers: [{
           required: true,
@@ -167,13 +193,29 @@ export default {
           },
           trigger: 'blur'
         }],
+        expectSuccessNumbers: [{
+          required: true,
+          validator: (rule, value, callback) => {
+            let res = /^\+?[1-9][0-9]*$/
+            if (value === '') {
+              callback(new Error('请输入预计成功领取人数'));
+            } else if (!res.test(value)) {
+              callback(new Error('人数输入有误'));
+            } else if (Number(value) > Number(this.formData.expectNumbers)) {
+              callback(new Error('领取成功人数不得大于参奖人数'));
+            } else {
+              callback()
+            }
+          },
+          trigger: 'blur'
+        }],
         envelopeProportion: [{
           required: true,
           validator: (rule, value, callback) => {
-            let res = /^((\d+\.\d*[1-9]\d{1})|(\d*[1-9]\d*\.\d{2}))$/
+            let res = /(^[1-9](\d{0,2})?(\.\d{1,2})?$)|(^0$)|(^\d\.\d{1,2}$)/;
             if (value === '') {
               callback(new Error('请输入比值'));
-            } else if (res.test(value)) {
+            } else if (!res.test(value)) {
               callback(new Error('比值输入有误!'));
             } else {
               callback();
@@ -184,12 +226,14 @@ export default {
         weakenLine: [{
           required: true,
           validator: (rule, value, callback) => {
-            let res = /^((\d+\.\d*[1-9]\d{1})|(\d*[1-9]\d*\.\d{2}))$/
+            //let res = /^((\d+\.?\d*)|(\d*\.\d+))\%$/
             if (value === '') {
-              callback(new Error('请输入比值'));
-            } else if (res.test(value)) {
-              callback(new Error('比值输入有误!'));
-            } else {
+              callback(new Error('请输入衰减百分比'));
+            }
+            // else if (!res.test(value)) {
+            //   callback(new Error('百分比输入有误!'));
+            // }
+            else {
               callback();
             }
           },
@@ -212,10 +256,10 @@ export default {
         floatRange: [{
           required: true,
           validator: (rule, value, callback) => {
-            let res = /^((\d+\.\d*[1-9]\d{1})|(\d*[1-9]\d*\.\d{2}))$/
+            let res = /^0\.[0-9]\d*$/;
             if (value === '') {
               callback(new Error('请输入比值'));
-            } else if (res.test(value)) {
+            } else if (!res.test(value)) {
               callback(new Error('比值输入有误!'));
             } else {
               callback();
@@ -225,33 +269,88 @@ export default {
         }]
       },
       noEdit: storage.get('disabled'),
+      pickerOptions: {
+        onPick: ({ minDate, maxDate }) => {
+          console.log(minDate, maxDate)
+          // let timeDate = minDate.getTime()
+          // this.havedDate.reduce((prev, cur, index) => {
+          //   let prevBeginDate = new Date(prev.beginDate).getTime();
+          //   let prevEndDate = new Date(prev.endDate).getTime();
+          //   let curBeginDate = new Date(cur.beginDate).getTime();
+          //   let curEndDate = new Date(cur.endDate).getTime();
+          //   console.log(prevBeginDate, prevEndDate)
+          //   console.log(curBeginDate, curEndDate)
+          //   if (timeDate < beginDate) {
+          //     console.log(1)
+          //   }
+          // })
+        },
+        //导出数据日期范围
+        disabledDate: (time) => {
+
+          let nowDate = Date.now()
+          let timeDate = time.getTime()
+          if (timeDate < nowDate) {
+            return true
+          } else {
+            this.havedDate.map(item => {
+              
+              let beginDate = new Date(item.beginDate).getTime();
+              let endDate = new Date(item.endDate).getTime();
+              console.log(beginDate,endDate)
+              if (beginDate <= timeDate && timeDate < endDate) {
+                console.log(1)
+                return true
+              }
+            })
+          }
+
+
+        }
+      }
     };
   },
   created() {
     //是否可编辑
     let row = storage.get('award')
     if (this.noEdit && row) {
-      this.ruleForm = row
-      this.$set(this.ruleForm, "date", [row.beginDate, row.endDate])
+      this.formData = row
+      this.$set(this.formData, "date", [row.beginDate, row.endDate])
     }
   },
-
+  mounted() {
+    this._getAwardsTime();
+  },
   methods: {
+    _getAwardsTime() {
+      apiAwardsTime().then((result) => {
+        if (result.code === 200) {
+          this.havedDate = result.data
+          console.log(this.havedDate)
+        } else {
+          this.$message.error(result.msg)
+        }
+      }).catch((err) => {
+        console.log(err.message);
+      });
+    },
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
-        if (valid) {
+        if (valid && this.isCaculate) {
           //处理数据
-          let { date } = this.ruleForm
-          this.$set(this.ruleForm, "beginDate", date[0])
-          this.$set(this.ruleForm, "endDate", date[1])
-          delete this.ruleForm.date;
+          let { date } = this.formData
+          this.$set(this.formData, "beginDate", date[0])
+          this.$set(this.formData, "endDate", date[1])
 
-          apiAddAward(this.ruleForm).then((result) => {
+          apiAddAward({
+            ...this.formData,
+            ...this.caculate
+          }).then((result) => {
             if (result.code === 200) {
               this.$message.success('添加成功');
-              this.$refs['ruleForm'].resetFields();
+              this.$refs[formName].resetFields();
               this.$router.push('/prize')
-            }else{
+            } else {
               this.$message.error(result.msg);
             }
           }).catch((err) => {
@@ -265,16 +364,43 @@ export default {
     toEdit() {
       this.noEdit = false
       storage.set('disabled', this.noEdit)
+    },
+    caculateHandle() {
+      let { awardName, startAwardAmount, date, expectNumbers, envelopeProportion, floatRange, groupNumber, weakenLine } = this.formData
+      if (awardName && startAwardAmount && date.length && expectNumbers && envelopeProportion && floatRange && groupNumber && weakenLine) {
+        this.formData.beginDate = this.formData.date[0]
+        this.formData.endDate = this.formData.date[1]
+        apiCaculate(this.formData).then((result) => {
+          if (result.code === 200) {
+            this.formData = { ...this.formData, ...result.data, }
+            this.isCaculate = true
+          } else {
+            this.isCaculate = false
+          }
+        }).catch((err) => {
+          console.log(err.message);
+        });
+      } else {
+        return false;
+      }
     }
   }
 }
 </script>
 <style scoped>
-.inline-block {
+.el-form-item {
   display: inline-block;
   width: 50%;
 }
-.ruleForm {
+.el-form-item.block {
+  display: block;
+}
+.el-form-item.button-wrap {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+.formData {
   width: 880px;
 }
 .el-input--small >>> .el-input__inner,

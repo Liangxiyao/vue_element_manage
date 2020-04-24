@@ -8,20 +8,12 @@
              active-text-color="#20a0ff"
              unique-opened
              router>
-      <template v-for="item in items">
-        <template v-if="item.subs">
-          <el-submenu :index="item.index"
-                      :key="item.index">
-
-          </el-submenu>
-        </template>
-        <template v-else>
-          <el-menu-item :index="item.index"
-                        :key="item.index">
-            <i :class="item.icon"></i>
-            <span slot="title">{{ item.title }}</span>
-          </el-menu-item>
-        </template>
+      <template v-for="(item,index) in items">
+        <el-menu-item :index="item.path"
+                      :key="index">
+          <i :class="item.icon"></i>
+          <span >{{ item.title }}</span>
+        </el-menu-item>
       </template>
     </el-menu>
   </div>
@@ -36,22 +28,22 @@ export default {
       items: [
         {
           icon: 'el-icon-s-home',
-          index: 'index',
+          path: 'index',
           title: '系统首页'
         },
         {
           icon: 'el-icon-s-tools',
-          index: 'prize',
+          path: 'prize',
           title: '活动列表'
         },
         {
           icon: 'el-icon-s-order',
-          index: 'rewardRecord',
+          path: 'rewardRecord',
           title: '抽奖记录'
         },
         {
           icon: 'el-icon-s-custom',
-          index: 'users',
+          path: 'users',
           title: '人员管理'
         },
       ]
@@ -76,7 +68,9 @@ export default {
       this.collapse = msg;
       bus.$emit('collapse-content', msg);
     });
-  }
+  },
+  methods: {
+  },
 };
 </script>
 

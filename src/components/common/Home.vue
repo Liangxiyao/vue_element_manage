@@ -4,13 +4,13 @@
     <v-sidebar></v-sidebar>
     <div class="content-box"
          :class="{'content-collapse':collapse}">
-      <page-header title="系统首页"
+      <page-header :title="title"
                    :refreshBtn="true"
                    :gobackBtn="true"></page-header>
       <div class="content">
         <transition name="move"
                     mode="out-in">
-          <keep-alive :include="tagsList">
+          <keep-alive>
             <router-view></router-view>
           </keep-alive>
         </transition>
@@ -28,7 +28,7 @@ import bus from './bus';
 export default {
   data() {
     return {
-      tagsList: [],
+      title:[],
       collapse: false
     };
   },

@@ -2,21 +2,20 @@
   <div class="useRecord">
     <el-table :data="tableData"
               class="mytable"
-              border
-              style="width: 100%">
-      <el-table-column prop="date"
+              border>
+      <el-table-column prop="operTime"
                        label="操作日期"
                        width="120">
       </el-table-column>
-      <el-table-column prop="id"
+      <el-table-column prop="userName"
                        label="账号ID"
                        width="160">
       </el-table-column>
-      <el-table-column prop="name"
+      <el-table-column prop="nickName"
                        label="姓名"
                        width="160">
       </el-table-column>
-      <el-table-column prop="info"
+      <el-table-column prop="operContent"
                        label="操作">
       </el-table-column>
     </el-table>
@@ -26,6 +25,8 @@
 
 <script>
 import MyPagination from '@/components/common/Pagination';
+import { apiLogList } from '@/utils/api';
+
 export default {
   components: {
     MyPagination,
@@ -33,10 +34,10 @@ export default {
   data() {
     return {
       tableData: [{
-        date: '2010.02.02',
-        id: '1525356521',
-        name: '张三',
-        info: '红包追加操作'
+        operTime: '2010.02.02',
+        userName: '1525356521',
+        nickName: '张三',
+        operContent: '红包追加操作'
       }],
       pagination: {
         pageNum: 1,
@@ -46,13 +47,19 @@ export default {
     }
   },
 
-
+mounted () {
+  this._getLogs();
+},
   methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+    _getLogs(){
+      let data = this.pagination
+      apiLogList(data).then((result) => {
+        if(result.code === 200){
+          this.tableData = result.rows
+        }
+      }).catch((err) => {
+        console.log(err.message)
+      });
     }
   },
 

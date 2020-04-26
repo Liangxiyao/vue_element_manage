@@ -1,11 +1,11 @@
 <template>
   <div class="users">
-    <!-- <div class="btn-group">
+    <div class="btn-group">
       <el-button type="primary"
                  @click="$router.push('/useRecord')">查看操作记录</el-button>
       <el-button type="primary"
                  @click="handleAdd">添加人员</el-button>
-    </div> -->
+    </div>
     <el-table :data="tableData"
               class="mytable"
               border
@@ -29,14 +29,9 @@
         </template>
       </el-table-column> -->
     </el-table>
-    <div class="bt">
-      <!-- <el-button type="primary"
-                 @click="$router.push('/useRecord')">查看操作记录</el-button> -->
-      <el-button type="primary"
-                 @click="handleAdd">添加人员</el-button>
-      <my-pagination :pagination="pagination"
-                     @changePage="changePage"></my-pagination>
-    </div>
+
+    <my-pagination :pagination="pagination"
+                   @changePage="changePage"></my-pagination>
 
     <!-- 添加人员弹窗 -->
     <el-dialog :visible.sync="addVisible"
@@ -201,21 +196,9 @@ export default {
   width: 120px;
   font-size: 14px;
 }
-.bt {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-.bt .el-button {
-  width: 160px;
-  font-size: 14px;
-  height: 46px;
-  line-height: 20px;
-}
 .el-pagination {
   margin-top: 5px;
-  flex:1;
+  flex: 1;
 }
 .el-dialog__footer .el-button {
   line-height: 16px;

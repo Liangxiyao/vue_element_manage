@@ -1,0 +1,194 @@
+<template>
+  <div class="prize">
+    <el-table :data="tableData"
+              class="mytable"
+              border>
+      <el-table-column label="编号"
+                       width="80">
+        <template v-slot="scope">
+          <span>{{scope.$index+(pagination.pageNum - 1) * pagination.pageSize + 1}} </span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="awardStatus"
+                       label="活动状态"
+                       width="100">
+        <template v-slot="scope">
+          <span>{{scope.row.awardStatus=="0"?"停用":'启用'}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="awardType"
+                       label="奖品类型">
+      </el-table-column>
+      <el-table-column prop="awardName"
+                       label="奖品内容">
+        <template v-slot="scope">
+          {{scope.row.awardType=="大额红包"?scope.row.awardAmount:scope.row.awardName}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="intervalCount"
+                       label="间隔次数">
+      </el-table-column>
+      <el-table-column prop="cycle"
+                       label="周期">
+      </el-table-column>
+      <el-table-column prop="cycleCount"
+                       label="周期内可被抽中次数">
+      </el-table-column>
+      <el-table-column prop="weakenLine"
+                       label="总库存/剩余库存">
+      </el-table-column>
+      <el-table-column prop="usedAmount"
+                       label="已被抽出数量">
+      </el-table-column>
+      <el-table-column label="操作"
+                       width="220">
+        <template v-slot="scope">
+          <el-button type="text"
+                     @click="$router.push('/extraRecordList')">中奖记录</el-button>
+          <el-button type="text"
+                     @click="handleEdit(scope.row)">修改</el-button>
+          <el-button type="text"
+                     @click="handleStop(scope.$index,scope.row)">停用</el-button>
+
+        </template>
+      </el-table-column>
+    </el-table>
+    <div class="bt">
+      <el-button type="primary"
+                 @click="toAdd">新建奖品</el-button>
+      <my-pagination :pagination="pagination"
+                     @changePage="changePage"></my-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+import storage from '@/utils/storage.js';
+import { apiExtraAward, apiSwitchExtra } from '@/utils/api.js';
+import MyPagination from '@/components/common/Pagination';
+export default {
+  components: {
+    MyPagination,
+  },
+  data() {
+    return {
+      tableData: [],
+      pagination: {
+        pageNum: 1,
+        pageSize: 10,
+        total: 0,
+      },
+    }
+  },
+  created() {
+    this._getExtraAward()
+  },
+  methods: {
+    //获取列表
+    _getExtraAward() {
+      let { pageNum, pageSize } = this.pagination
+      apiExtraAward({
+        pageNum,
+        pageSize,
+      }).then((result) => {
+        if (result.code === 200) {
+          let { total, rows } = result
+          this.pagination.total = total
+          this.tableData = rows
+        } else {
+          this.$message.error(result.msg);
+        }
+      }).catch((err) => {
+        console.log(err.message);
+      });
+    },
+    // 停止操作
+    handleStop(index, row) {
+      // 二次确认
+      this.$confirm('确定要停用该奖品吗？', '', {
+        center: true,
+        customClass: 'stopDialog'
+      }).then(() => {
+        apiSwitchExtra({ awardId: row.id }).then((result) => {
+          if (result.code === 200) {
+            this.$set(this.tableData[index], "status", "1")
+            this.$message.success('该奖品已停用')
+          } else {
+            this.$message.error(result.msg)
+          }
+        }).catch((err) => {
+          console.log(err.message)
+        });
+      })
+    },
+    //修改
+    handleEdit(row) {
+      storage.set("awardTypeDisabled", true)
+      storage.set("extraAward", row)
+      this.$router.push('/setExtraAward')
+    },
+    changePage(val) {
+      this.pagination.pageNum = val
+      this._getAwardList()
+    },
+    //跳转添加
+    toAdd() {
+      storage.set("awardTypeDisabled", false)
+      storage.remove("extraAward")
+      this.$router.push('/setExtraAward')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.bt {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+.bt .el-button {
+  width: 160px;
+  font-size: 14px;
+  height: 46px;
+  line-height: 20px;
+}
+.el-dialog__footer .el-button {
+  position: relative;
+  top: -20px;
+}
+
+.addDialog >>> .el-input {
+  width: 120px;
+  float: left;
+  margin-right: 10px;
+}
+.addDialog .tip {
+  font-size: 12px;
+  color: #888;
+  height: 32px;
+  line-height: 1;
+}
+.el-pagination {
+  margin-top: 5px;
+}
+
+
+</style>
+<style >
+.stopDialog {
+  width: 360px;
+}
+.stopDialog .el-message-box__message {
+  font-size: 16px;
+}
+.stopDialog .el-button {
+  width: 100px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.el-date-editor.el-input__inner {
+  width: auto;
+}
+</style>

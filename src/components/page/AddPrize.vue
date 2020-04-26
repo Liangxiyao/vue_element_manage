@@ -3,7 +3,7 @@
     <el-form :model="formData"
              :rules="rules"
              ref="formData"
-             label-width="180px"
+             label-width="170px"
              class="formData">
       <el-form-item class="block"
                     label="活动名称"
@@ -27,6 +27,29 @@
                         @blur="caculateHandle">
         </el-date-picker>
       </el-form-item>
+      <el-form-item class="block"
+                    label="活力红包与达星红包比"
+                    prop="envelopeProportion">
+        <el-input v-model="formData.envelopeProportion"
+                  placeholder="如 活力1：达星3 = 0.33，请输入0.33"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"></el-input>
+      </el-form-item>
+
+      <el-form-item label="随机组成员数"
+                    prop="groupNumber">
+        <el-input v-model="formData.groupNumber"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"
+                  placeholder="请输入随机组成人员数"></el-input>
+      </el-form-item>
+      <el-form-item label="浮动金额比例"
+                    prop="floatRange">
+        <el-input v-model="formData.floatRange"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"
+                  placeholder="请输入浮动百分比，如10%"></el-input>
+      </el-form-item>
       <el-form-item label="预计参与抽奖人数"
                     prop="expectNumbers">
         <el-input v-model="formData.expectNumbers"
@@ -41,27 +64,14 @@
                   placeholder="请输入预计成功领取人数"
                   @blur="caculateHandle"></el-input>
       </el-form-item>
-      <el-form-item label="活力红包与达星红包比"
-                    prop="envelopeProportion">
-        <el-input v-model="formData.envelopeProportion"
-                  placeholder="请输入比值,例如 0.5,最多保留两位小数"
+      <el-form-item label="设置总金额"
+                    prop="startAwardAmount">
+        <el-input v-model="formData.startAwardAmount"
                   :disabled="noEdit"
+                  placeholder="请输入设置总金额"
                   @blur="caculateHandle"></el-input>
       </el-form-item>
-      <el-form-item label="随机组成员数"
-                    prop="groupNumber">
-        <el-input v-model="formData.groupNumber"
-                  :disabled="noEdit"
-                  @blur="caculateHandle"
-                  placeholder="请输入随机组成人员数"></el-input>
-      </el-form-item>
-      <el-form-item label="浮动金额比例"
-                    prop="floatRange">
-        <el-input v-model="formData.floatRange"
-                  :disabled="noEdit"
-                  @blur="caculateHandle"
-                  placeholder="浮动比例为0-1之间"></el-input>
-      </el-form-item>
+
       <el-form-item label="开始衰减阶段"
                     prop="weakenLine">
         <el-input v-model="formData.weakenLine"
@@ -69,15 +79,9 @@
                   @blur="caculateHandle"
                   placeholder="请输入开始衰减百分比，如80%"></el-input>
       </el-form-item>
-      <el-form-item label="启动金额"
-                    prop="startAwardAmount">
-        <el-input v-model="formData.startAwardAmount"
-                  :disabled="noEdit"
-                  placeholder="请输入启动金额"
-                  @blur="caculateHandle"></el-input>
-      </el-form-item>
+
       <el-form-item class="block"
-                    label="总金额"
+                    label="预计总金额(含未领额度)"
                     prop="awardAmount">
         <el-input :value="formData.awardAmount"
                   disabled
@@ -133,6 +137,7 @@
 import storage from '@/utils/storage.js';
 import { apiAddAward, apiCaculate, apiAwardsTime } from '@/utils/api.js';
 export default {
+  name: 'addPrize',
   data() {
     return {
       formData: {
@@ -159,7 +164,7 @@ export default {
           validator: (rule, value, callback) => {
             const res = /^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/;
             if (value === '') {
-              callback(new Error('请输入启动金额'));
+              callback(new Error('请输入设置总金额'));
             } else if (!res.test(value)) {
               callback(new Error('金额输入有误'));
             } else {
@@ -226,13 +231,12 @@ export default {
         weakenLine: [{
           required: true,
           validator: (rule, value, callback) => {
-            //let res = /^((\d+\.?\d*)|(\d*\.\d+))\%$/
+            let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
             if (value === '') {
               callback(new Error('请输入衰减百分比'));
+            } else if (!res.test(value)) {
+              callback(new Error('百分比输入有误!'));
             }
-            // else if (!res.test(value)) {
-            //   callback(new Error('百分比输入有误!'));
-            // }
             else {
               callback();
             }
@@ -256,11 +260,11 @@ export default {
         floatRange: [{
           required: true,
           validator: (rule, value, callback) => {
-            let res = /^0\.[0-9]\d*$/;
+            let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
             if (value === '') {
-              callback(new Error('请输入比值'));
+              callback(new Error('请输入浮动范围'));
             } else if (!res.test(value)) {
-              callback(new Error('比值输入有误!'));
+              callback(new Error('百分比输入有误!'));
             } else {
               callback();
             }
@@ -287,17 +291,16 @@ export default {
         },
         //导出数据日期范围
         disabledDate: (time) => {
-
           let nowDate = Date.now()
           let timeDate = time.getTime()
           if (timeDate < nowDate) {
             return true
           } else {
             this.havedDate.map(item => {
-              
+
               let beginDate = new Date(item.beginDate).getTime();
               let endDate = new Date(item.endDate).getTime();
-              console.log(beginDate,endDate)
+              console.log(beginDate, endDate)
               if (beginDate <= timeDate && timeDate < endDate) {
                 console.log(1)
                 return true

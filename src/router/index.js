@@ -38,6 +38,21 @@ const router = new Router({
           meta: { title: '添加活动' },
         },
         {
+          path: '/extraAward',
+          component: () => import('../components/page/ExtraAward.vue'),
+          meta: { title: '特殊奖项列表' }
+        },
+        {
+          path: '/setExtraAward',
+          component: () => import('../components/page/SetExtraAward.vue'),
+          meta: { title: '新建奖品' }
+        },
+        {
+          path: '/extraRecordList',
+          component: () => import('../components/page/ExtraRecordList.vue'),
+          meta: { title: '特殊奖项抽中名单' }
+        },
+        {
           path: '/rewardRecord',
           component: () => import('../components/page/RewardRecord.vue'),
           meta: { title: '抽奖记录' }

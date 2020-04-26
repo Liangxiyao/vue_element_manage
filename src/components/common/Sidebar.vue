@@ -12,7 +12,7 @@
         <el-menu-item :index="item.path"
                       :key="index">
           <i :class="item.icon"></i>
-          <span >{{ item.title }}</span>
+          <span>{{ item.title }}</span>
         </el-menu-item>
       </template>
     </el-menu>
@@ -37,6 +37,11 @@ export default {
           title: '活动列表'
         },
         {
+          icon: 'el-icon-s-ticket',
+          path: 'extraAward',
+          title: '特殊奖项'
+        },
+        {
           icon: 'el-icon-s-order',
           path: 'rewardRecord',
           title: '抽奖记录'
@@ -53,11 +58,11 @@ export default {
     onRoutes() {
       if (this.$route.path.replace('/', '') == 'addprize') {
         return 'prize';
-      }
-      else if (this.$route.path.replace('/', '') == 'useRecord') {
+      } else if (this.$route.path.replace('/', '') == 'useRecord') {
         return 'users'
-      }
-      else {
+      } else if (this.$route.path.replace('/', '') == 'setExtraAward' || this.$route.path.replace('/', '') == 'extraRecordList') {
+        return 'extraAward'
+      } else {
         return this.$route.path.replace('/', '');
       }
     }

@@ -2,8 +2,7 @@
   <div class="prize">
     <el-table :data="tableData"
               class="mytable"
-              border
-              style="width: 100%">
+              border>
       <el-table-column label="编号"
                        width="80">
         <template v-slot="scope">

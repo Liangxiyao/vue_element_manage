@@ -80,7 +80,9 @@ export default {
                 username,
                 token: result.token
               })
-              this.$router.replace('/index');
+              setTimeout(() => {
+                this.$router.replace('/index');
+              }, 1000)
             } else {
               this.$message.success(result.msg);
             }

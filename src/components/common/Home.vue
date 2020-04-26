@@ -10,7 +10,7 @@
       <div class="content">
         <transition name="move"
                     mode="out-in">
-          <keep-alive>
+          <keep-alive exclude="addPrize,setExtraAward">
             <router-view></router-view>
           </keep-alive>
         </transition>

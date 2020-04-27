@@ -37,7 +37,6 @@ axios.interceptors.request.use(
     if (req.showLoading) {
       ShowLoading()
     }
-
     return req
   },
   err => {
@@ -57,20 +56,20 @@ axios.interceptors.response.use(
         duration: 2000
       })
       // 清除token
-      storage.remove('users');
+      storage.clear();
       // 跳转登陆页
       router.replace({
         path: 'login',
         query: { redirect: router.currentRoute.fullPath }
       })
-    } else if (res.data.code === 403) {
+    }else if (res.data.code === 403) {
       Message({
         message: '权限不足,请联系管理员',
         type: 'error',
         duration: 2000
       })
       // 清除token
-      storage.remove('users');
+      storage.clear();
       // 跳转登陆页
       router.replace({
         path: 'login',
@@ -80,7 +79,7 @@ axios.interceptors.response.use(
     return res
   },
   err => {
-    console.log(err.response.status)
+    //console.log(err.response.status)
     Loading.service().close();
     if (err.response.status == 504 || err.response.status == 404) {
       Message.error({ message: '服务器被吃了⊙﹏⊙∥' });
@@ -104,7 +103,7 @@ axios.interceptors.response.use(
 // axios.defaults.headers.post['responseType'] = 'blob'
 export function post(url, params = {}, loading = { showLoading: true }) {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl+url, params, loading)
+    axios.post(baseUrl + url, params, loading)
       .then(res => {
         resolve(res.data)
       }).catch(err => {
@@ -115,7 +114,7 @@ export function post(url, params = {}, loading = { showLoading: true }) {
 //封装get请求，若请求不需要loading，则将showLoading设为false
 export function get(url, params = {}, loading = { showLoading: true }) {
   return new Promise((resolve, reject) => {
-    axios.get(baseUrl+url, {
+    axios.get(baseUrl + url, {
       params: params
     }, loading)
       .then(res => {

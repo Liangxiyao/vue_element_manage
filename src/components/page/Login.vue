@@ -36,6 +36,7 @@ import { apiGetCode, apiLogin } from '@/utils/api';
 import storage from '@/utils/storage';
 
 export default {
+  name: 'logiin',
   data() {
     return {
       param: {
@@ -46,10 +47,10 @@ export default {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
       },
-    };
+    }
   },
-  mounted() {
-    // this._getCodeHandle();
+  created() {
+    storage.clear()
   },
   methods: {
     _getCodeHandle() {
@@ -75,14 +76,12 @@ export default {
           }
           apiLogin(data).then((result) => {
             if (result.code == 200) {
-              this.$message.success('登录成功');
               storage.set("users", {
                 username,
                 token: result.token
               })
-              setTimeout(() => {
-                this.$router.replace('/index');
-              }, 1000)
+              this.$router.replace('/index');
+
             } else {
               this.$message.success(result.msg);
             }

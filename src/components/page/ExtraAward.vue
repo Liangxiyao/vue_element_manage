@@ -13,7 +13,7 @@
                        label="活动状态"
                        width="100">
         <template v-slot="scope">
-          <span>{{scope.row.awardStatus=="0"?"停用":'启用'}}</span>
+          <span>{{scope.row.awardStatus=="0"?"启用":'停用'}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="awardType"
@@ -34,10 +34,10 @@
       <el-table-column prop="cycleCount"
                        label="周期内可被抽中次数">
       </el-table-column>
-      <el-table-column prop="weakenLine"
+      <el-table-column prop="initialAndLeft"
                        label="总库存/剩余库存">
       </el-table-column>
-      <el-table-column prop="usedAmount"
+      <el-table-column prop="usedCount"
                        label="已被抽出数量">
       </el-table-column>
       <el-table-column label="操作"
@@ -48,7 +48,7 @@
           <el-button type="text"
                      @click="handleEdit(scope.row)">修改</el-button>
           <el-button type="text"
-                     @click="handleStop(scope.$index,scope.row)">{{scope.row.awardStatus=="0"?"启用":'停用'}}</el-button>
+                     @click="handleStop(scope.$index,scope.row)">{{scope.row.awardStatus=="0"?"停用":'启用'}}</el-button>
 
         </template>
       </el-table-column>
@@ -66,6 +66,8 @@
 import storage from '@/utils/storage.js';
 import { apiExtraAward, apiSwitchExtra } from '@/utils/api.js';
 import MyPagination from '@/components/common/Pagination';
+import bus from '../common/bus';
+
 export default {
   components: {
     MyPagination,
@@ -80,8 +82,15 @@ export default {
       },
     }
   },
-  created() {
+  mounted() {
     this._getExtraAward()
+  },
+  activated() {
+    bus.$on('isRefreshExtraAward', (param) => {
+      if (param) {
+        this._getExtraAward()
+      }
+    })
   },
   methods: {
     //获取列表
@@ -102,24 +111,42 @@ export default {
         console.log(err.message);
       });
     },
-    // 停止操作
+    // 启动停止操作
     handleStop(index, row) {
-      // 二次确认
-      this.$confirm('确定要停用该奖品吗？', '', {
-        center: true,
-        customClass: 'stopDialog'
-      }).then(() => {
-        apiSwitchExtra({ awardId: row.id }).then((result) => {
-          if (result.code === 200) {
-            this.$set(this.tableData[index], "status", "1")
-            this.$message.success('该奖品已停用')
-          } else {
-            this.$message.error(result.msg)
-          }
-        }).catch((err) => {
-          console.log(err.message)
-        });
-      })
+      if (row.awardStatus == 0) {
+        this.$confirm('确定要停用该活动吗', '', {
+          center: true,
+          customClass: 'stopDialog'
+        }).then(() => {
+          apiSwitchExtra({ awardId: row.id }).then((result) => {
+            if (result.code === 200) {
+              this.$set(this.tableData[index], "awardStatus", 1)
+              this.$message.success('该活动已停止')
+            } else {
+              this.$message.error(result.msg)
+            }
+          }).catch((err) => {
+            console.log(err.message)
+          });
+        })
+      } else if (row.awardStatus == 1) {
+        this.$confirm('确定要启用该活动吗', '', {
+          center: true,
+          customClass: 'stopDialog'
+        }).then(() => {
+          apiSwitchExtra({ awardId: row.id }).then((result) => {
+            if (result.code === 200) {
+              this.$set(this.tableData[index], "awardStatus", 0)
+              this.$message.success('该活动已启用')
+            } else {
+              this.$message.error(result.msg)
+            }
+          }).catch((err) => {
+            console.log(err.message)
+          });
+        })
+      }
+
     },
     //修改
     handleEdit(row) {
@@ -173,8 +200,6 @@ export default {
 .el-pagination {
   margin-top: 5px;
 }
-
-
 </style>
 <style >
 .stopDialog {

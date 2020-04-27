@@ -115,12 +115,10 @@ export default {
   },
   mounted() {
     this._getData()
-
   },
   methods: {
     _getData() {
       apiIndexInfo().then((result) => {
-        console.log(result)
         if (result.code === 200) {
           this.dataItem = result.data
           this.drawLine();

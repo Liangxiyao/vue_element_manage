@@ -8,5 +8,8 @@ export default {
   },
   remove(key) {
       localStorage.removeItem(key)
+  },
+  clear() {
+    localStorage.clear()
   }
 } 

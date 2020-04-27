@@ -117,7 +117,7 @@ export default {
       if (command == 'loginout') {
         apiExit().then((result) => {
           if (result.code === 200) {
-            localStorage.clear()
+            storage.clear()
             this.$router.push('/login');
           }
         }).catch((err) => {

@@ -35,21 +35,6 @@
                   :disabled="noEdit"
                   @blur="caculateHandle"></el-input>
       </el-form-item>
-
-      <el-form-item label="随机组成员数"
-                    prop="groupNumber">
-        <el-input v-model="formData.groupNumber"
-                  :disabled="noEdit"
-                  @blur="caculateHandle"
-                  placeholder="请输入随机组成人员数"></el-input>
-      </el-form-item>
-      <el-form-item label="浮动金额比例"
-                    prop="floatRange">
-        <el-input v-model="formData.floatRange"
-                  :disabled="noEdit"
-                  @blur="caculateHandle"
-                  placeholder="请输入浮动百分比，如10%"></el-input>
-      </el-form-item>
       <el-form-item label="预计参与抽奖人数"
                     prop="expectNumbers">
         <el-input v-model="formData.expectNumbers"
@@ -63,6 +48,20 @@
                   :disabled="noEdit"
                   placeholder="请输入预计成功领取人数"
                   @blur="caculateHandle"></el-input>
+      </el-form-item>
+      <el-form-item label="随机组成员数"
+                    prop="groupNumber">
+        <el-input v-model="formData.groupNumber"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"
+                  placeholder="请输入随机组成人员数"></el-input>
+      </el-form-item>
+      <el-form-item label="浮动金额比例"
+                    prop="floatRange">
+        <el-input v-model="formData.floatRange"
+                  :disabled="noEdit"
+                  @blur="caculateHandle"
+                  placeholder="请输入浮动百分比，如10%"></el-input>
       </el-form-item>
       <el-form-item label="设置总金额"
                     prop="startAwardAmount">
@@ -136,6 +135,7 @@
 <script>
 import storage from '@/utils/storage.js';
 import { apiAddAward, apiCaculate, apiAwardsTime } from '@/utils/api.js';
+import bus from '../common/bus';
 export default {
   name: 'addPrize',
   data() {
@@ -157,14 +157,14 @@ export default {
       isCaculate: false, //是否已经计算
       rules: {
         awardName: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { required: true, message: '此项为必填项', trigger: 'blur' },
         ],
         startAwardAmount: [{
           required: true,
           validator: (rule, value, callback) => {
             const res = /^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/;
             if (value === '') {
-              callback(new Error('请输入设置总金额'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('金额输入有误'));
             } else {
@@ -189,7 +189,7 @@ export default {
           validator: (rule, value, callback) => {
             let res = /^\+?[1-9][0-9]*$/
             if (value === '') {
-              callback(new Error('请输入预计参奖人数'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('人数输入有误'));
             } else {
@@ -203,7 +203,7 @@ export default {
           validator: (rule, value, callback) => {
             let res = /^\+?[1-9][0-9]*$/
             if (value === '') {
-              callback(new Error('请输入预计成功领取人数'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('人数输入有误'));
             } else if (Number(value) > Number(this.formData.expectNumbers)) {
@@ -219,7 +219,7 @@ export default {
           validator: (rule, value, callback) => {
             let res = /(^[1-9](\d{0,2})?(\.\d{1,2})?$)|(^0$)|(^\d\.\d{1,2}$)/;
             if (value === '') {
-              callback(new Error('请输入比值'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('比值输入有误!'));
             } else {
@@ -233,11 +233,10 @@ export default {
           validator: (rule, value, callback) => {
             let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
             if (value === '') {
-              callback(new Error('请输入衰减百分比'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
-              callback(new Error('百分比输入有误!'));
-            }
-            else {
+              callback(new Error('百分比输入有误'));
+            }else {
               callback();
             }
           },
@@ -248,7 +247,7 @@ export default {
           validator: (rule, value, callback) => {
             let res = /^\+?[1-9][0-9]*$/
             if (value === '') {
-              callback(new Error('请输入预计参奖人数'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('人数输入有误'));
             } else {
@@ -262,7 +261,7 @@ export default {
           validator: (rule, value, callback) => {
             let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
             if (value === '') {
-              callback(new Error('请输入浮动范围'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('百分比输入有误!'));
             } else {
@@ -274,8 +273,8 @@ export default {
       },
       noEdit: storage.get('disabled'),
       pickerOptions: {
-        onPick: ({ minDate, maxDate }) => {
-          console.log(minDate, maxDate)
+        //onPick: ({ minDate, maxDate }) => {
+          //console.log(minDate, maxDate)
           // let timeDate = minDate.getTime()
           // this.havedDate.reduce((prev, cur, index) => {
           //   let prevBeginDate = new Date(prev.beginDate).getTime();
@@ -288,7 +287,7 @@ export default {
           //     console.log(1)
           //   }
           // })
-        },
+       // },
         //导出数据日期范围
         disabledDate: (time) => {
           let nowDate = Date.now()
@@ -300,9 +299,9 @@ export default {
 
               let beginDate = new Date(item.beginDate).getTime();
               let endDate = new Date(item.endDate).getTime();
-              console.log(beginDate, endDate)
+              // console.log(beginDate, endDate)
               if (beginDate <= timeDate && timeDate < endDate) {
-                console.log(1)
+                // console.log(1)
                 return true
               }
             })
@@ -311,7 +310,7 @@ export default {
 
         }
       }
-    };
+    }
   },
   created() {
     //是否可编辑
@@ -353,6 +352,7 @@ export default {
               this.$message.success('添加成功');
               this.$refs[formName].resetFields();
               this.$router.push('/prize')
+              bus.$emit('isRefreshPrize', true)
             } else {
               this.$message.error(result.msg);
             }

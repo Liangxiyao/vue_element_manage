@@ -41,15 +41,18 @@
       <el-table-column label="操作"
                        width="220">
         <template v-slot="scope">
-          <!-- <el-button type="text"
+          <el-button type="text"
                      v-if="scope.row.status==1"
                      @click="handleAddtime(scope.$index,scope.row)">延长时间</el-button>
           <el-button type="text"
                      v-if="scope.row.status==1"
-                     @click="handleAdd(scope.$index)">追加</el-button> -->
+                     @click="handleAppend(scope.$index,scope.row.awardId)">追加</el-button>
           <el-button type="text"
                      v-if="scope.row.status == 1"
                      @click="handleStop(scope.$index,scope.row)">停止</el-button>
+          <!-- <el-button type="text"
+                     v-if="scope.row.status == 3"
+                     @click="handleStop(scope.$index,scope.row)">启动</el-button> -->
           <el-button type="text"
                      @click="handleLook(scope.row)">查看</el-button>
           <el-button type="text"
@@ -67,74 +70,14 @@
       <my-pagination :pagination="pagination"
                      @changePage="changePage"></my-pagination>
     </div>
-    <!-- 追加弹出框 -->
-    <el-dialog title="追加信息"
-               class="addDialog"
-               center
-               :visible.sync="addVisible"
-               width="460px">
-      <el-form ref="form"
-               :rules="addRules"
-               :model="addForm"
-               label-width="100px">
-        <el-form-item label="追加金额"
-                      prop="awardAmount">
-          <el-input v-model="addForm.awardAmount"></el-input>
-          <div class="tip flex-column">
-            <div>当前剩余活动金额：50000</div>
-            <div>追加后金额：50000</div>
-          </div>
-        </el-form-item>
-        <el-form-item label="追加人数"
-                      prop="expectNumbers">
-          <el-input v-model="addForm.expectNumbers"></el-input>
-          <div class="tip flex-column">
-            <div>当前剩余参与人数：100</div>
-            <div>追加后人数：500</div>
-          </div>
-        </el-form-item>
-        <el-form-item label="红包金额比"
-                      prop="envelopeProportion">
-          <el-input v-model="addForm.envelopeProportion"></el-input>
-          <div class="tip flex-column">
-            <div>活力红包 ：达星红包</div>
-            <div>当前金额比：0.5</div>
-          </div>
-        </el-form-item>
-        <el-form-item label="开始衰减阶段"
-                      prop="weakenLine">
-          <el-input v-model="addForm.weakenLine"></el-input>
-          <div class="tip flex-column">
-            <div>当前衰减比例：90%</div>
-          </div>
-        </el-form-item>
-        <el-form-item label="随机组成人员数"
-                      prop="groupNumber">
-          <el-input v-model="addForm.groupNumber"></el-input>
-          <div class="tip flex-column">
-            <div>当前衰减比例：90%</div>
-          </div>
-        </el-form-item>
-        <el-form-item label="浮动金额比例"
-                      prop="floatRange">
-          <el-input v-model="addForm.floatRange"></el-input>
-          <div class="tip flex-column">
-            <div>当前衰减比例：90%</div>
-          </div>
-        </el-form-item>
-      </el-form>
-      <span slot="footer"
-            class="dialog-footer">
-        <el-button @click="addVisible = false">取 消</el-button>
-        <el-button type="primary"
-                   @click="saveAdd">确 定</el-button>
-      </span>
-    </el-dialog>
+    <append-dialog :appendVisible="appendVisible"
+                   :awardId="awardId"
+                   @hideDialog="hideDialog"></append-dialog>
 
     <!-- 延长时间 -->
     <el-dialog title="延长活动时间"
                center
-               :visible.sync="addTimeVisible"
+               :visible.sync="appendTimeVisible"
                width="400px">
       <el-form ref="form">
         <el-form-item class="oldtime-box"
@@ -153,15 +96,16 @@
                       label-width="70px">
           <el-date-picker v-model="newDate"
                           type="date"
-                          placeholder="选择日期">
+                          placeholder="选择日期"
+                          :picker-options="appendTimePickerOptions">
           </el-date-picker>
         </el-form-item>
       </el-form>
       <span slot="footer"
             class="dialog-footer">
-        <el-button @click="addTimeVisible = false">取 消</el-button>
+        <el-button @click="appendTimeVisible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="saveTime">确 定</el-button>
+                   @click="saveAppendTime">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -195,24 +139,27 @@
 
 <script>
 import storage from '@/utils/storage.js';
-import { apiAwardList, apiDeleteAward, apiStopAward, apiExportRecord } from '@/utils/api.js';
+import { apiAwardList, apiDeleteAward, apiStopAward, apiExportRecord, apiAppendTime } from '@/utils/api.js';
 import MyPagination from '@/components/common/Pagination';
+import AppendDialog from '@/components/page/AppendPrize';
+
+import bus from '../common/bus';
+
 export default {
   components: {
     MyPagination,
+    AppendDialog
   },
   data() {
     return {
       awardId: '', //当前活动id
       editVisible: false,
-      addTimeVisible: false,
-      addVisible: false,
+      appendTimeVisible: false,
+      appendVisible: false,
       exportVisible: false,
-      addForm: {},
-      addRules: [],
       tableData: [],
       oldDate: [],
-      newDate: [],
+      newDate: '',
       exportDateRange: [],
       exportForm: {
         exportDate: []
@@ -230,11 +177,26 @@ export default {
           let end = new Date(this.exportDateRange[1]).getTime()
           return date < start || date > end
         }
+      },
+      appendTimePickerOptions: {
+        //延长日期范围
+        disabledDate: (time) => {
+          let date = time.getTime()
+          let start = new Date(this.oldDate[1]).getTime()
+          return date < start
+        }
       }
     }
   },
-  created() {
+  mounted() {
     this._getAwardList()
+  },
+  activated() {
+    bus.$on('isRefreshPrize', (param) => {
+      if (param) {
+        this._getAwardList()
+      }
+    })
   },
   methods: {
     //获取列表
@@ -257,12 +219,26 @@ export default {
     },
     // 延长时间
     handleAddtime(index, row) {
-      this.addTimeVisible = true
-      console.log(row.date)
-      this.oldDate.push('2012.12.01', '2012.12.20')
+      this.appendTimeVisible = true
+      this.oldDate.push(row.beginDate, row.endDate)
+      this.awardId = row.id
     },
-    //确认延长
-    saveTime() { },
+    //确认延长时间
+    saveAppendTime() {
+      apiAppendTime({
+        awardId:this.awardId,
+        date:this.newDate
+      }).then((result) => {
+        if(result.code === 200){
+          console.log(result)
+          this._getAwardList()
+        }else{
+          this.$message.error(result.msg)
+        }
+      }).catch((err) => {
+        console.log(err.message)
+      });
+    },
     // 删除操作
     handleDelete(index, id) {
       // 二次确认删除
@@ -283,12 +259,13 @@ export default {
       })
     },
     //追加操作
-    handleAdd() {
-      this.addVisible = true
+    handleAppend(id) {
+      this.awardId = id
+      this.appendVisible = true
     },
     //追加完成
-    saveAdd() {
-
+    hideDialog() {
+      this.appendVisible = false
     },
     // 停止操作
     handleStop(index, row) {
@@ -336,7 +313,7 @@ export default {
               this.exportVisible = false
               window.location.href = result.msg
               this.$refs[formName].resetFields();
-          
+
             } else {
               this.$message.error(result.msg)
             }
@@ -393,17 +370,6 @@ export default {
   top: -20px;
 }
 
-.addDialog >>> .el-input {
-  width: 120px;
-  float: left;
-  margin-right: 10px;
-}
-.addDialog .tip {
-  font-size: 12px;
-  color: #888;
-  height: 32px;
-  line-height: 1;
-}
 .el-pagination {
   margin-top: 5px;
 }

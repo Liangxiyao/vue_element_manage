@@ -27,7 +27,8 @@
                       type="date"
                       placeholder="选择日期"
                       value-format="yyyy-MM-dd"
-                      class="handle-input mr20">
+                      class="handle-input mr20"
+                      :picker-options="choosePickerOptions">
       </el-date-picker>
       <el-input v-if="query.queryType == 2"
                 v-model="query.agentCode"
@@ -120,7 +121,17 @@ export default {
         pageSize: 10,
         total: 0,
       },
-      errTip: ''
+      optionalDate: {},
+      errTip: '',
+      choosePickerOptions: {
+        disabledDate: (time) => {
+          let date = time.getTime()
+          let { beginDate, endDate } = this.optionalDate
+          let start = new Date(beginDate).getTime()
+          let end = new Date(endDate).getTime()
+          return date < start || date > end
+        }
+      }
     }
   },
   mounted() {
@@ -132,7 +143,13 @@ export default {
       apiAwardsInfo().then((result) => {
         if (result.code === 200) {
           this.nameOptions = result.data
-          this.query.awardId = result.data[0].awardId
+          //默认的活动名称
+          let { awardId, beginDate, endDate } = result.data[0]
+          this.query.awardId = awardId
+          this.optionalDate = {
+            beginDate,
+            endDate
+          }
           this._getRecordList()
         }
       }).catch((err) => {
@@ -140,13 +157,8 @@ export default {
       });
     },
     _getRecordList() {
-      // console.log({ ...this.query })
-      // console.log(this.query)
       let data = Object.assign(this.query, this.pagination)
-      // let data = { ...this.pagination, ...this.query }
-      // console.log(data)
       delete data.total
-
       apiRecordList(data).then((result) => {
         if (result.code === 200) {
           let { total, rows } = result

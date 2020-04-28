@@ -131,7 +131,6 @@ export default {
     },
     drawLine() {
       let { sevenDayMap } = this.dataItem
-      console.log(sevenDayMap)
       let xData = sevenDayMap.map((item) => item.date)
       let yData = sevenDayMap.map((item) => item.count)
       //初始化echarts实例

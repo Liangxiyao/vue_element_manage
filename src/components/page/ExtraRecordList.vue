@@ -17,7 +17,7 @@
       </el-table-column>
 
     </el-table>
-    <div class="bt">
+    <div class="bt"   v-if="tableData.length">
       <el-button type="primary"
                  @click="exportData">导出数据</el-button>
       <my-pagination :pagination="pagination"
@@ -36,6 +36,7 @@ export default {
   },
   data() {
     return {
+      awardId: 0,
       tableData: [],
       pagination: {
         pageNum: 1,
@@ -44,14 +45,16 @@ export default {
       },
     }
   },
-
-  mounted() {
-    this._getLists();
+  activated() {
+    this.awardId = this.$route.query.id
+    this._getLists()
   },
   methods: {
     _getLists() {
-      let data = this.pagination
-      apiExtraRecordList(data).then((result) => {
+      apiExtraRecordList({
+        awardId: this.awardId,
+        ...this.pagination 
+      }).then((result) => {
         if (result.code === 200) {
           this.tableData = result.rows
         }
@@ -65,13 +68,13 @@ export default {
     },
     //跳转添加
     exportData() {
-     apiExportExtraRecord().then((result) => {
-       if(result.code === 200){
-         window.location.href = result.msg
-       }
-     }).catch((err) => {
-       console.log(err.message)
-     });
+      apiExportExtraRecord().then((result) => {
+        if (result.code === 200) {
+          window.location.href = result.msg
+        }
+      }).catch((err) => {
+        console.log(err.message)
+      });
     },
   }
 

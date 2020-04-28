@@ -236,7 +236,7 @@ export default {
               callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('百分比输入有误'));
-            }else {
+            } else {
               callback();
             }
           },
@@ -274,38 +274,36 @@ export default {
       noEdit: storage.get('disabled'),
       pickerOptions: {
         //onPick: ({ minDate, maxDate }) => {
-          //console.log(minDate, maxDate)
-          // let timeDate = minDate.getTime()
-          // this.havedDate.reduce((prev, cur, index) => {
-          //   let prevBeginDate = new Date(prev.beginDate).getTime();
-          //   let prevEndDate = new Date(prev.endDate).getTime();
-          //   let curBeginDate = new Date(cur.beginDate).getTime();
-          //   let curEndDate = new Date(cur.endDate).getTime();
-          //   console.log(prevBeginDate, prevEndDate)
-          //   console.log(curBeginDate, curEndDate)
-          //   if (timeDate < beginDate) {
-          //     console.log(1)
-          //   }
-          // })
-       // },
-        //导出数据日期范围
+        //console.log(minDate, maxDate)
+        // let timeDate = minDate.getTime()
+        // this.havedDate.reduce((prev, cur, index) => {
+        //   let prevBeginDate = new Date(prev.beginDate).getTime();
+        //   let prevEndDate = new Date(prev.endDate).getTime();
+        //   let curBeginDate = new Date(cur.beginDate).getTime();
+        //   let curEndDate = new Date(cur.endDate).getTime();
+        //   console.log(prevBeginDate, prevEndDate)
+        //   console.log(curBeginDate, curEndDate)
+        //   if (timeDate < beginDate) {
+        //     console.log(1)
+        //   }
+        // })
+        // },
+        //可选日期范围
         disabledDate: (time) => {
-          let nowDate = Date.now()
+          let nowDate = Date.now() - 24 * 60 * 60 * 1000;
           let timeDate = time.getTime()
           if (timeDate < nowDate) {
             return true
-          } else {
-            this.havedDate.map(item => {
-
-              let beginDate = new Date(item.beginDate).getTime();
-              let endDate = new Date(item.endDate).getTime();
-              // console.log(beginDate, endDate)
-              if (beginDate <= timeDate && timeDate < endDate) {
-                // console.log(1)
-                return true
-              }
-            })
           }
+          // else {
+          //   this.havedDate.map(item => {
+          //     let beginDate = new Date(item.beginDate).getTime();
+          //     let endDate = new Date(item.endDate).getTime();
+          //     if (beginDate <= timeDate && timeDate < endDate) {
+          //       return true
+          //     }
+          //   })
+          // }
 
 
         }

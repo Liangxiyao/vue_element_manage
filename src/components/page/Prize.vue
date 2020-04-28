@@ -46,10 +46,10 @@
                      @click="handleAddtime(scope.$index,scope.row)">延长时间</el-button>
           <el-button type="text"
                      v-if="scope.row.status==1"
-                     @click="handleAppend(scope.$index,scope.row.awardId)">追加</el-button>
+                     @click="handleAppend(scope.row)">追加</el-button>
           <el-button type="text"
                      v-if="scope.row.status == 1"
-                     @click="handleStop(scope.$index,scope.row)">停止</el-button>
+                     @click="handleStop(scope.$index,scope.row.id)">停止</el-button>
           <!-- <el-button type="text"
                      v-if="scope.row.status == 3"
                      @click="handleStop(scope.$index,scope.row)">启动</el-button> -->
@@ -70,8 +70,9 @@
       <my-pagination :pagination="pagination"
                      @changePage="changePage"></my-pagination>
     </div>
+    <!-- 追加 -->
     <append-dialog :appendVisible="appendVisible"
-                   :awardId="awardId"
+                   :row="currentRow"
                    @hideDialog="hideDialog"></append-dialog>
 
     <!-- 延长时间 -->
@@ -97,6 +98,8 @@
           <el-date-picker v-model="newDate"
                           type="date"
                           placeholder="选择日期"
+                          value-format="yyyy-MM-dd"
+                          :default-value="oldDate[1]"
                           :picker-options="appendTimePickerOptions">
           </el-date-picker>
         </el-form-item>
@@ -152,7 +155,7 @@ export default {
   },
   data() {
     return {
-      awardId: '', //当前活动id
+      currentRow: {}, //当前活动
       editVisible: false,
       appendTimeVisible: false,
       appendVisible: false,
@@ -221,18 +224,19 @@ export default {
     handleAddtime(index, row) {
       this.appendTimeVisible = true
       this.oldDate.push(row.beginDate, row.endDate)
-      this.awardId = row.id
+      this.currentRow = row
     },
     //确认延长时间
     saveAppendTime() {
       apiAppendTime({
-        awardId:this.awardId,
-        date:this.newDate
+        awardId: this.currentRow.id,
+        beginDate: this.oldDate[0],
+        endDate: this.newDate
       }).then((result) => {
-        if(result.code === 200){
+        if (result.code === 200) {
           console.log(result)
           this._getAwardList()
-        }else{
+        } else {
           this.$message.error(result.msg)
         }
       }).catch((err) => {
@@ -259,8 +263,8 @@ export default {
       })
     },
     //追加操作
-    handleAppend(id) {
-      this.awardId = id
+    handleAppend(row) {
+      this.currentRow = row
       this.appendVisible = true
     },
     //追加完成
@@ -268,13 +272,13 @@ export default {
       this.appendVisible = false
     },
     // 停止操作
-    handleStop(index, row) {
+    handleStop(index, id) {
       // 二次确认删除
       this.$confirm('确定要停止该活动吗？', '', {
         center: true,
         customClass: 'stopDialog'
       }).then(() => {
-        apiStopAward({ awardId: row.id }).then((result) => {
+        apiStopAward({ awardId: id }).then((result) => {
           if (result.code === 200) {
             this.$set(this.tableData[index], "status", "3")
             this.$message.success('活动已停止')

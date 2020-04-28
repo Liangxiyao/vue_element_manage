@@ -4,55 +4,55 @@
              class="appendDialog"
              center
              :visible.sync="appendVisible"
-             width="500px" 
+             width="500px"
              :before-close='cancel'>
-    <el-form ref="form"
+    <el-form ref="appendForm"
              :rules="rules"
              :model="appendForm"
              label-width="125px">
       <el-form-item label="追加金额"
-                    prop="awardAmount">
-        <el-input v-model="appendForm.awardAmount"></el-input>
+                    prop="addAwardAmount">
+        <el-input v-model="appendForm.addAwardAmount"></el-input>
         <div class="tip flex-column">
-          <div>当前剩余活动金额：50000</div>
-          <div>追加后金额：{{appendForm.appendMoney}}</div>
+          <div>当前剩余活动金额：{{row.usedAmount}}</div>
+          <div v-if="appendForm.addAwardAmount">追加后金额：{{appendMoney}}</div>
         </div>
       </el-form-item>
       <el-form-item label="追加人数"
-                    prop="appendNumbers">
-        <el-input v-model="appendForm.appendNumbers"></el-input>
+                    prop="addExpectNumbers">
+        <el-input v-model="appendForm.addExpectNumbers"></el-input>
         <div class="tip flex-column">
-          <div>当前剩余参与人数：100</div>
-          <div v-if="appendForm.appendMoney">追加后人数：{{appendForm.appendMoney}}</div>
+          <div>当前剩余参与人数：{{row.leftNumberCount}}</div>
+          <div v-if="appendForm.addExpectNumbers">追加后人数：{{appendNumbers}}</div>
         </div>
       </el-form-item>
       <el-form-item label="红包金额比"
-                    prop="envelopeProportion">
-        <el-input v-model="appendForm.envelopeProportion"></el-input>
+                    prop="addEnvelopeProportion">
+        <el-input v-model="appendForm.addEnvelopeProportion"></el-input>
         <div class="tip flex-column">
           <div>活力红包 ：达星红包</div>
-          <div>当前金额比：0.5</div>
+          <div>当前金额比：{{row.envelopeProportion}}</div>
         </div>
       </el-form-item>
       <el-form-item label="开始衰减阶段"
-                    prop="weakenLine">
-        <el-input v-model="appendForm.weakenLine"></el-input>
+                    prop="addWeakenLine">
+        <el-input v-model="appendForm.addWeakenLine"></el-input>
         <div class="tip flex-column">
-          <div>当前衰减比例：90%</div>
+          <div>当前衰减比例：{{row.weakenLine}}</div>
         </div>
       </el-form-item>
       <el-form-item label="随机组成人员数"
-                    prop="groupNumber">
-        <el-input v-model="appendForm.groupNumber"></el-input>
+                    prop="addGroupNumber">
+        <el-input v-model="appendForm.addGroupNumber"></el-input>
         <div class="tip flex-column">
-          <div>当前衰减比例：90%</div>
+          <div>当前随机人数：{{row.groupNumber}}</div>
         </div>
       </el-form-item>
       <el-form-item label="浮动金额比例"
-                    prop="floatRange">
-        <el-input v-model="appendForm.floatRange"></el-input>
+                    prop="addFloatRange">
+        <el-input v-model="appendForm.addFloatRange"></el-input>
         <div class="tip flex-column">
-          <div>当前衰减比例：90%</div>
+          <div>当前浮动比例：{{row.floatRange}}</div>
         </div>
       </el-form-item>
     </el-form>
@@ -60,7 +60,7 @@
           class="dialog-footer">
       <el-button @click="cancel">取 消</el-button>
       <el-button type="primary"
-                 @click="saveAdd">确 定</el-button>
+                 @click="saveAdd('appendForm')">确 定</el-button>
     </span>
   </el-dialog>
 </template>
@@ -69,12 +69,19 @@ import { apiAppendPrize } from '@/utils/api.js';
 import bus from '../common/bus';
 
 export default {
-  props: ['awardId','appendVisible'],
+  props: ['row', 'appendVisible'],
   data() {
     return {
-      appendForm: {},
+      appendForm: {
+        addAwardAmount:'',
+        addExpectNumbers:'',
+        addEnvelopeProportion:'',
+        addWeakenLine:'',
+        addGroupNumber:'',
+        addFloatRange:''
+      },
       rules: {
-        awardAmount: [{
+        addAwardAmount: [{
           required: true,
           validator: (rule, value, callback) => {
             const res = /^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/;
@@ -88,7 +95,7 @@ export default {
           },
           trigger: 'blur'
         }],
-        appendNumbers: [{
+        addExpectNumbers: [{
           required: true,
           validator: (rule, value, callback) => {
             let res = /^\+?[1-9][0-9]*$/
@@ -102,7 +109,7 @@ export default {
           },
           trigger: 'blur'
         }],
-        envelopeProportion: [{
+        addEnvelopeProportion: [{
           required: true,
           validator: (rule, value, callback) => {
             let res = /(^[1-9](\d{0,2})?(\.\d{1,2})?$)|(^0$)|(^\d\.\d{1,2}$)/;
@@ -116,7 +123,7 @@ export default {
           },
           trigger: 'blur'
         }],
-        weakenLine: [{
+        addWeakenLine: [{
           required: true,
           validator: (rule, value, callback) => {
             let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
@@ -131,7 +138,7 @@ export default {
           },
           trigger: 'blur'
         }],
-        groupNumber: [{
+        addGroupNumber: [{
           required: true,
           validator: (rule, value, callback) => {
             let res = /^\+?[1-9][0-9]*$/
@@ -145,12 +152,12 @@ export default {
           },
           trigger: 'blur'
         }],
-        floatRange: [{
+        addFloatRange: [{
           required: true,
           validator: (rule, value, callback) => {
             let res = /^(100|(([1-9]\d|\d)(\.\d{1,2})?))%$/
             if (value === '') {
-              callback(new Error('请输入浮动范围'));
+              callback(new Error('此项为必填项'));
             } else if (!res.test(value)) {
               callback(new Error('百分比输入有误!'));
             } else {
@@ -162,32 +169,51 @@ export default {
       },
     }
   },
+  computed: {
+    appendMoney() {
+      let {usedAmount} = this.row
+      let {addAwardAmount} = this.appendForm
+      return parseFloat(usedAmount*100+addAwardAmount*100)/100
+    },
+    appendNumbers(){
+      let {leftNumberCount } = this.row
+      let {addExpectNumbers} = this.appendForm
+      return parseFloat(awardNumbers*100+addExpectNumbers*100)/100
+    }
+  },
   methods: {
-    saveAdd() {
-      apiAppendPrize({
-        awardId:this.awardId,
-        ...this.appendForm
-      }).then((result) => {
-        if (result.code === 200) {
-          this.$emit('hideDialog')
-          //刷新数据
-          bus.$emit('isRefreshPrize', true)
+    saveAdd(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          apiAppendPrize({
+            awardId: parseInt(this.row.id),
+            ...this.appendForm
+          }).then((result) => {
+            if (result.code === 200) {
+              this.$emit('hideDialog')
+              //刷新数据
+              bus.$emit('isRefreshPrize', true)
+            } else {
+              console.log(result.msg)
+            }
+          }).catch((err) => {
+            console.log(err.message)
+          });
         }else{
-          console.log(result.msg)
+          return false
         }
-      }).catch((err) => {
-        console.log(err.message)
-      });
+      })
+
     },
     cancel() {
       this.$emit('hideDialog')
+      this.$refs['appendForm'].resetFields()
     }
   },
 }
 </script>
 
 <style scoped>
-
 .appendDialog >>> .el-input {
   width: 160px;
   float: left;
@@ -196,7 +222,7 @@ export default {
 .appendDialog .tip {
   font-size: 12px;
   color: #888;
-  height: 32px;
+  height: 40px;
   line-height: 1;
 }
 </style>

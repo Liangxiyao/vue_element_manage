@@ -85,7 +85,7 @@
 <script>
 import { apiRecordList, apiAwardsInfo } from '@/utils/api';
 import MyPagination from '@/components/common/Pagination';
-
+import {getDate} from '@/utils/base.js';
 export default {
   components: {
     MyPagination,
@@ -156,6 +156,7 @@ export default {
         console.log(err.message)
       });
     },
+    //列表数据
     _getRecordList() {
       let data = Object.assign(this.query, this.pagination)
       delete data.total
@@ -163,7 +164,12 @@ export default {
         if (result.code === 200) {
           let { total, rows } = result
           this.pagination.total = total
-          this.tableData = rows
+          this.tableData = rows.map(item=>{
+
+            item.createTime = getDate(item.createTime)
+            return item
+          })
+          console.log(this.tableData)
         }
       }).catch((err) => {
         console.log(err.message)

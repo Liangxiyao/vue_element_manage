@@ -50,9 +50,9 @@
           <el-button type="text"
                      v-if="scope.row.status == 1"
                      @click="handleStop(scope.$index,scope.row.id)">停止</el-button>
-          <!-- <el-button type="text"
+          <el-button type="text"
                      v-if="scope.row.status == 3"
-                     @click="handleStop(scope.$index,scope.row)">启动</el-button> -->
+                     @click="handleOpen(scope.$index,scope.row.id)">启动</el-button>
           <el-button type="text"
                      @click="handleLook(scope.row)">查看</el-button>
           <el-button type="text"
@@ -245,7 +245,6 @@ export default {
     },
     // 删除操作
     handleDelete(index, id) {
-      // 二次确认删除
       this.$confirm('确定要删除吗？', '提示', {
         center: true,
         customClass: 'stopDialog'
@@ -273,7 +272,6 @@ export default {
     },
     // 停止操作
     handleStop(index, id) {
-      // 二次确认删除
       this.$confirm('确定要停止该活动吗？', '', {
         center: true,
         customClass: 'stopDialog'
@@ -282,6 +280,24 @@ export default {
           if (result.code === 200) {
             this.$set(this.tableData[index], "status", "3")
             this.$message.success('活动已停止')
+          } else {
+            this.$message.error(result.msg)
+          }
+        }).catch((err) => {
+          console.log(err.message)
+        });
+      })
+    },
+    // 启动操作
+    handleOpen(index, id) {
+      this.$confirm('确定要启动该活动吗？', '', {
+        center: true,
+        customClass: 'stopDialog'
+      }).then(() => {
+        apiStopAward({ awardId: id }).then((result) => {
+          if (result.code === 200) {
+            this.$set(this.tableData[index], "status", "1")
+            this.$message.success('活动已启动')
           } else {
             this.$message.error(result.msg)
           }

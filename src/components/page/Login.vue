@@ -56,9 +56,9 @@ export default {
     _getCodeHandle() {
       apiGetCode().then((result) => {
         if (result.code === 200) {
-          let { verifyKey, uuid } = result;
-          storage.set('verifyKey', verifyKey)
-          storage.set('uuid', uuid)
+          //let { verifyKey, uuid } = result;
+         // storage.set('verifyKey', verifyKey)
+          //storage.set('uuid', uuid)
         }
       }).catch((err) => {
         console.log(err.message);

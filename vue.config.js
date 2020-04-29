@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: '/manage',
+  publicPath: '',
   outputDir: 'dist',
   configureWebpack: {
     resolve: {

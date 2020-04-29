@@ -7,6 +7,8 @@ axios.defaults.timeout = 10000;
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 
 let baseUrl = 'http://123.56.99.109:8080'
+
+
 let requestCount = 0    //请求数量
 //显示loading
 export function ShowLoading() {
@@ -49,7 +51,9 @@ axios.interceptors.response.use(
     if (res.config.showLoading) {
       HideLoading()
     }
-    if (res.data.code === 401) {
+    if (res.data.code === 200) {
+      return res
+    }else if (res.data.code === 401) {
       Message({
         message: '账户过期，请重新登录',
         type: 'error',
@@ -62,7 +66,7 @@ axios.interceptors.response.use(
         path: 'login',
         query: { redirect: router.currentRoute.fullPath }
       })
-    }else if (res.data.code === 403) {
+    } else if (res.data.code === 403) {
       Message({
         message: '权限不足,请联系管理员',
         type: 'error',
@@ -75,8 +79,14 @@ axios.interceptors.response.use(
         path: 'login',
         query: { redirect: router.currentRoute.fullPath }
       })
+    } else {
+      Message({
+        message: res.data.msg,
+        type: 'error',
+        duration: 2000
+      })
     }
-    return res
+    
   },
   err => {
     //console.log(err.response.status)

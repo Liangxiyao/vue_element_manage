@@ -4,7 +4,7 @@
              class="appendDialog"
              center
              :visible.sync="appendVisible"
-             width="500px"
+             width="520px"
              :before-close='cancel'>
     <el-form ref="appendForm"
              :rules="rules"
@@ -24,6 +24,7 @@
         <div class="tip flex-column">
           <div>当前剩余参与人数：{{row.leftNumberCount}}</div>
           <div v-if="appendForm.addExpectNumbers">追加后人数：{{appendNumbers}}</div>
+          <div v-if="appendForm.addExpectNumbers">追加后剩余总次数：{{appendCount}}</div>
         </div>
       </el-form-item>
       <el-form-item label="红包金额比"
@@ -73,12 +74,12 @@ export default {
   data() {
     return {
       appendForm: {
-        addAwardAmount:'',
-        addExpectNumbers:'',
-        addEnvelopeProportion:'',
-        addWeakenLine:'',
-        addGroupNumber:'',
-        addFloatRange:''
+        addAwardAmount: 0,
+        addExpectNumbers: 0,
+        addEnvelopeProportion: 0,
+        addWeakenLine: '',
+        addGroupNumber: 0,
+        addFloatRange: ''
       },
       rules: {
         addAwardAmount: [{
@@ -171,14 +172,23 @@ export default {
   },
   computed: {
     appendMoney() {
-      let {usedAmount} = this.row
-      let {addAwardAmount} = this.appendForm
-      return parseFloat(usedAmount*100+addAwardAmount*100)/100
+      let { usedAmount } = this.row
+      let { addAwardAmount } = this.appendForm
+      return parseFloat(usedAmount * 100 + addAwardAmount * 100) / 100
     },
-    appendNumbers(){
-      let {leftNumberCount } = this.row
-      let {addExpectNumbers} = this.appendForm
-      return parseFloat(awardNumbers*100+addExpectNumbers*100)/100
+    appendNumbers() {
+      let { leftNumberCount } = this.row
+      let { addExpectNumbers } = this.appendForm
+      return parseInt(leftNumberCount*1 + addExpectNumbers*1)
+    },
+    appendCount() {
+      let { awardDays, beginDate, leftNumberCount } = this.row
+      let nowTime = Date.parse(new Date());
+      let beginTime = Date.parse(beginDate);
+      let alreayDays = parseInt((nowTime - beginTime) / (1000 * 60 * 60 * 24));
+      let restDays = parseInt(awardDays - alreayDays) //剩余天数
+      let numbers = this.appendNumbers
+      return parseInt(restDays * numbers + leftNumberCount*1)
     }
   },
   methods: {
@@ -186,7 +196,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           apiAppendPrize({
-            awardId: parseInt(this.row.id),
+            awardId:this.row.id,
             ...this.appendForm
           }).then((result) => {
             if (result.code === 200) {
@@ -199,7 +209,7 @@ export default {
           }).catch((err) => {
             console.log(err.message)
           });
-        }else{
+        } else {
           return false
         }
       })

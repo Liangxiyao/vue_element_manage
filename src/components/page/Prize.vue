@@ -4,7 +4,7 @@
               class="mytable"
               border>
       <el-table-column label="编号"
-                       width="80">
+                       width="60">
         <template v-slot="scope">
           <span>{{scope.$index+(pagination.pageNum - 1) * pagination.pageSize + 1}} </span>
         </template>
@@ -13,7 +13,11 @@
                        label="奖项名称">
       </el-table-column>
       <el-table-column prop="awardAmount"
-                       label="总金额">
+                       width="220"
+                       label="总金额 / 已抽出 / 余额">
+        <template v-slot="scope">
+          <span>{{awardResult(scope.row)}} </span>
+        </template>
       </el-table-column>
       <el-table-column prop="expectNumbers"
                        label="参与活动人力预计">
@@ -26,7 +30,7 @@
       </el-table-column>
       <el-table-column prop="date"
                        label="活动起止时间"
-                       width="200">
+                       width="180">
         <template v-slot="scope">
           <span>{{scope.row.beginDate+ ' 至 ' +scope.row.endDate}}</span>
         </template>
@@ -41,15 +45,14 @@
       <el-table-column label="操作"
                        width="220">
         <template v-slot="scope">
-          <el-button type="text"
-                     v-if="scope.row.status==1"
-                     @click="handleAddtime(scope.$index,scope.row)">延长时间</el-button>
-          <el-button type="text"
-                     v-if="scope.row.status==1"
-                     @click="handleAppend(scope.row)">追加</el-button>
-          <el-button type="text"
-                     v-if="scope.row.status == 1"
-                     @click="handleStop(scope.$index,scope.row.id)">停止</el-button>
+          <template v-if="scope.row.status == 1">
+            <el-button type="text"
+                       @click="handleAddtime(scope.$index,scope.row)">延长时间</el-button>
+            <el-button type="text"
+                       @click="handleAppend(scope.row)">追加</el-button>
+            <el-button type="text"
+                       @click="handleStop(scope.$index,scope.row.id)">停止</el-button>
+          </template>
           <el-button type="text"
                      v-if="scope.row.status == 3"
                      @click="handleOpen(scope.$index,scope.row.id)">启动</el-button>
@@ -59,7 +62,7 @@
                      v-if="scope.row.status != 0"
                      @click="handleExport(scope.row)">导出数据</el-button>
           <el-button type="text"
-                     v-if="scope.row.status == 0"
+                     v-if="scope.row.status == 0 || scope.row.status == 3"
                      @click="handleDelete(scope.$index,scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -209,13 +212,9 @@ export default {
         pageNum,
         pageSize,
       }).then((result) => {
-        if (result.code === 200) {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows
-        } else {
-          this.$message.error(result.msg);
-        }
+        let { total, rows } = result
+        this.pagination.total = total
+        this.tableData = rows
       }).catch((err) => {
         console.log(err.message);
       });
@@ -231,14 +230,10 @@ export default {
       apiAppendTime({
         awardId: this.currentRow.id,
         beginDate: this.oldDate[0],
-        endDate: this.newDate
+        endDate: this.newDate + ' 23:59:59'
       }).then((result) => {
-        if (result.code === 200) {
-          console.log(result)
-          this._getAwardList()
-        } else {
-          this.$message.error(result.msg)
-        }
+        console.log(result)
+        this._getAwardList()
       }).catch((err) => {
         console.log(err.message)
       });
@@ -249,13 +244,9 @@ export default {
         center: true,
         customClass: 'stopDialog'
       }).then(() => {
-        apiDeleteAward({ "awardId": id }).then((result) => {
-          if (result.code === 200) {
-            this.tableData.splice(index, 1);
-            this.$message.success('删除成功');
-          } else {
-            this.$message.error(result.msg);
-          }
+        apiDeleteAward({ "awardId": id }).then(() => {
+          this.tableData.splice(index, 1);
+          this.$message.success('删除成功');
         }).catch((err) => {
           console.log(err.message);
         });
@@ -277,12 +268,8 @@ export default {
         customClass: 'stopDialog'
       }).then(() => {
         apiStopAward({ awardId: id }).then((result) => {
-          if (result.code === 200) {
-            this.$set(this.tableData[index], "status", "3")
-            this.$message.success('活动已停止')
-          } else {
-            this.$message.error(result.msg)
-          }
+          this.$set(this.tableData[index], "status", "3")
+          this.$message.success('活动已停止')
         }).catch((err) => {
           console.log(err.message)
         });
@@ -295,12 +282,8 @@ export default {
         customClass: 'stopDialog'
       }).then(() => {
         apiStopAward({ awardId: id }).then((result) => {
-          if (result.code === 200) {
-            this.$set(this.tableData[index], "status", "1")
-            this.$message.success('活动已启动')
-          } else {
-            this.$message.error(result.msg)
-          }
+          this.$set(this.tableData[index], "status", "1")
+          this.$message.success('活动已启动')
         }).catch((err) => {
           console.log(err.message)
         });
@@ -328,15 +311,10 @@ export default {
             beginDate,
             endDate
           }).then((result) => {
-            if (result.code === 200) {
-              this.$message.success('导出成功')
-              this.exportVisible = false
-              window.location.href = result.msg
-              this.$refs[formName].resetFields();
-
-            } else {
-              this.$message.error(result.msg)
-            }
+            this.$message.success('导出成功')
+            this.exportVisible = false
+            //window.location.href = window.location.host + result.msg
+            this.$refs[formName].resetFields();
           }).catch((err) => {
             console.log(err.message)
           });
@@ -354,6 +332,12 @@ export default {
       storage.set("disabled", false)
       storage.remove("award")
       this.$router.push('/addprize')
+    },
+    //格式化 总金额/已抽出/余额
+    awardResult(row) {
+      let { awardAmount, usedAmount } = row
+      let money = parseFloat(awardAmount * 100 - usedAmount * 100) / 100
+      return awardAmount + ' / ' + money + ' / ' + usedAmount
     },
     //处理活动状态
     statusFormat(status) {
@@ -373,41 +357,5 @@ export default {
 </script>
 
 <style scoped>
-.bt {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-.bt .el-button {
-  width: 160px;
-  font-size: 14px;
-  height: 46px;
-  line-height: 20px;
-}
-.el-dialog__footer .el-button {
-  position: relative;
-  top: -20px;
-}
-
-.el-pagination {
-  margin-top: 5px;
-}
-</style>
-
-<style >
-.stopDialog {
-  width: 360px;
-}
-.stopDialog .el-message-box__message {
-  font-size: 16px;
-}
-.stopDialog .el-button {
-  width: 100px;
-  margin-top: 20px;
-  font-size: 14px;
-}
-.el-date-editor.el-input__inner {
-  width: auto;
-}
+@import url(~assets/css/table.css);
 </style>

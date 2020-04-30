@@ -78,11 +78,14 @@
                   @blur="caculateHandle"
                   placeholder="请输入开始衰减百分比，如80%"></el-input>
       </el-form-item>
-
-      <el-form-item class="block"
-                    label="预计总金额(含未领额度)"
+      <el-form-item label="预计总金额(含未领额度)"
                     prop="awardAmount">
         <el-input :value="formData.awardAmount"
+                  disabled
+                  placeholder="提交人力预计后系统自动计算"></el-input>
+      </el-form-item>
+      <el-form-item label="预计参奖总次数">
+        <el-input :value="formData.awardNumbers"
                   disabled
                   placeholder="提交人力预计后系统自动计算"></el-input>
       </el-form-item>
@@ -272,42 +275,15 @@ export default {
         }]
       },
       noEdit: storage.get('disabled'),
+      //可选日期范围
       pickerOptions: {
-        //onPick: ({ minDate, maxDate }) => {
-        //console.log(minDate, maxDate)
-        // let timeDate = minDate.getTime()
-        // this.havedDate.reduce((prev, cur, index) => {
-        //   let prevBeginDate = new Date(prev.beginDate).getTime();
-        //   let prevEndDate = new Date(prev.endDate).getTime();
-        //   let curBeginDate = new Date(cur.beginDate).getTime();
-        //   let curEndDate = new Date(cur.endDate).getTime();
-        //   console.log(prevBeginDate, prevEndDate)
-        //   console.log(curBeginDate, curEndDate)
-        //   if (timeDate < beginDate) {
-        //     console.log(1)
-        //   }
-        // })
-        // },
-        //可选日期范围
         disabledDate: (time) => {
           let nowDate = Date.now() - 24 * 60 * 60 * 1000;
           let timeDate = time.getTime()
-          if (timeDate < nowDate) {
-            return true
-          }
-          // else {
-          //   this.havedDate.map(item => {
-          //     let beginDate = new Date(item.beginDate).getTime();
-          //     let endDate = new Date(item.endDate).getTime();
-          //     if (beginDate <= timeDate && timeDate < endDate) {
-          //       return true
-          //     }
-          //   })
-          // }
-
-
+          return timeDate < nowDate
         }
       }
+
     }
   },
   created() {
@@ -324,15 +300,10 @@ export default {
   methods: {
     _getAwardsTime() {
       apiAwardsTime().then((result) => {
-        if (result.code === 200) {
-          this.havedDate = result.data
-          console.log(this.havedDate)
-        } else {
-          this.$message.error(result.msg)
-        }
+        this.havedDate = result.data
       }).catch((err) => {
         console.log(err.message);
-      });
+      })
     },
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
@@ -345,15 +316,11 @@ export default {
           apiAddAward({
             ...this.formData,
             ...this.caculate
-          }).then((result) => {
-            if (result.code === 200) {
-              this.$message.success('添加成功');
-              this.$refs[formName].resetFields();
-              this.$router.push('/prize')
-              bus.$emit('isRefreshPrize', true)
-            } else {
-              this.$message.error(result.msg);
-            }
+          }).then(() => {
+            this.$message.success('添加成功');
+            this.$refs[formName].resetFields();
+            this.$router.push('/prize')
+            bus.$emit('isRefreshPrize', true)
           }).catch((err) => {
             console.log(err.message);
           });
@@ -372,12 +339,8 @@ export default {
         this.formData.beginDate = this.formData.date[0]
         this.formData.endDate = this.formData.date[1]
         apiCaculate(this.formData).then((result) => {
-          if (result.code === 200) {
-            this.formData = { ...this.formData, ...result.data, }
-            this.isCaculate = true
-          } else {
-            this.isCaculate = false
-          }
+          this.formData = { ...this.formData, ...result.data }
+          this.isCaculate = true
         }).catch((err) => {
           console.log(err.message);
         });

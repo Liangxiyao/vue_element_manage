@@ -119,18 +119,14 @@ export default {
   methods: {
     _getData() {
       apiIndexInfo().then((result) => {
-        if (result.code === 200) {
           this.dataItem = result.data
           this.drawLine();
-        } else {
-          this.$message.error(result.msg)
-        }
       }).catch((err) => {
         console.log(err.message)
       });
     },
     drawLine() {
-      let { sevenDayMap } = this.dataItem
+      let sevenDayMap= this.dataItem.sevenDayMap.reverse()
       let xData = sevenDayMap.map((item) => item.date)
       let yData = sevenDayMap.map((item) => item.count)
       //初始化echarts实例

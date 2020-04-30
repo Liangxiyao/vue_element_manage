@@ -5,7 +5,7 @@
               border>
       <el-table-column prop="operTime"
                        label="操作日期"
-                       width="120">
+                       width="200">
       </el-table-column>
       <el-table-column prop="userName"
                        label="账号ID"
@@ -13,7 +13,7 @@
       </el-table-column>
       <el-table-column prop="nickName"
                        label="姓名"
-                       width="160">
+                       width="180">
       </el-table-column>
       <el-table-column prop="operContent"
                        label="操作">
@@ -47,22 +47,19 @@ export default {
     }
   },
 
-mounted () {
-  this._getLogs();
-},
+  mounted() {
+    this._getLogs();
+  },
   methods: {
-    _getLogs(){
+    _getLogs() {
       let data = this.pagination
       apiLogList(data).then((result) => {
-        if(result.code === 200){
-          this.tableData = result.rows
-        }
+        this.tableData = result.rows
       }).catch((err) => {
         console.log(err.message)
       });
     }
   },
-
 }
 </script>
 

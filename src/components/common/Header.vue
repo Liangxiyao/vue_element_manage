@@ -115,24 +115,18 @@ export default {
     handleCommand(command) {
       //退出登陆
       if (command == 'loginout') {
-        apiExit().then((result) => {
-          if (result.code === 200) {
-            storage.clear()
-            this.$router.push('/login');
-          }
+        apiExit().then(() => {
+          storage.clear()
+          this.$router.push('/login');
         }).catch((err) => {
           this.$message.error(err.message);
         });
       } else if (command == 'editPwd') {
         apiUserInfo().then((result) => {
-          if (result.code === 200) {
-            this.editVisible = true
-            let { userId, userName, nickName } = result.user
-            this.editform = {
-              userId, userName, nickName
-            }
-          } else {
-            this.$message.error(result.msg)
+          this.editVisible = true
+          let { userId, userName, nickName } = result.user
+          this.editform = {
+            userId, userName, nickName
           }
         }).catch((err) => {
           console.log(err.message)
@@ -153,14 +147,9 @@ export default {
             userId,
             password
           }).then((result) => {
-            if (result.code === 200) {
-              this.$message.success('密码修改成功');
-              this.editVisible = false
-              this.$refs[formName].resetFields();
-
-            } else {
-              this.$message.error(result.msg);
-            }
+            this.$message.success('密码修改成功');
+            this.editVisible = false
+            this.$refs[formName].resetFields();
           }).catch((err) => {
             console.log(err.message)
           });

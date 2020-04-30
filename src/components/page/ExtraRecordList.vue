@@ -17,7 +17,8 @@
       </el-table-column>
 
     </el-table>
-    <div class="bt"   v-if="tableData.length">
+    <div class="bt"
+         v-if="tableData.length">
       <el-button type="primary"
                  @click="exportData">导出数据</el-button>
       <my-pagination :pagination="pagination"
@@ -53,11 +54,9 @@ export default {
     _getLists() {
       apiExtraRecordList({
         awardId: this.awardId,
-        ...this.pagination 
+        ...this.pagination
       }).then((result) => {
-        if (result.code === 200) {
-          this.tableData = result.rows
-        }
+        this.tableData = result.rows
       }).catch((err) => {
         console.log(err.message)
       });
@@ -66,15 +65,21 @@ export default {
       this.pagination.pageNum = val
       this._getAwardList()
     },
-    //跳转添加
+    //导出数据
     exportData() {
-      apiExportExtraRecord().then((result) => {
-        if (result.code === 200) {
-          window.location.href = result.msg
-        }
-      }).catch((err) => {
-        console.log(err.message)
-      });
+      this.$confirm('确定要导出中奖名单吗？', '', {
+        center: true,
+        customClass: 'stopDialog'
+      }).then(() => {
+        apiExportExtraRecord().then((result) => {
+          this.$message.success('导出成功')
+          console.log(result)
+          // window.location.href = result.msg
+        }).catch((err) => {
+          console.log(err.message)
+        });
+      })
+
     },
   }
 
@@ -82,19 +87,5 @@ export default {
 </script>
 
 <style scoped>
-.bt {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-.bt .el-button {
-  width: 160px;
-  font-size: 14px;
-  height: 46px;
-  line-height: 20px;
-}
-.el-pagination {
-  margin-top: 5px;
-}
+@import url(~assets/css/table.css);
 </style>

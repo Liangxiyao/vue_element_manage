@@ -64,7 +64,7 @@
 
 <script>
 import storage from '@/utils/storage.js';
-import { apiEditExtraAward } from '@/utils/api.js';
+import { apiEditExtraAward,apiAddExtraAward } from '@/utils/api.js';
 import bus from '../common/bus';
 
 export default {
@@ -137,26 +137,42 @@ export default {
   },
   methods: {
     onSubmit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          apiEditExtraAward({
-            ...this.formData,
-          }).then((result) => {
-            if (result.code === 200) {
-              this.$message.success('操作成功');
-              this.$refs[formName].resetFields();
-              this.$router.push('/extraAward')
-              bus.$emit('isRefreshExtraAward', true)
-            } else {
-              this.$message.error(result.msg);
-            }
-          }).catch((err) => {
-            console.log(err.message);
-          });
-        } else {
-          return false;
-        }
-      });
+      if (this.noEdit) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            apiEditExtraAward({
+              ...this.formData,
+            }).then(() => {
+                this.$message.success('操作成功');
+                this.$refs[formName].resetFields();
+                this.$router.push('/extraAward')
+                bus.$emit('isRefreshExtraAward', true)
+            }).catch((err) => {
+              console.log(err.message);
+            });
+          } else {
+            return false;
+          }
+        });
+      } else {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            apiAddExtraAward({
+              ...this.formData,
+            }).then(() => {
+                this.$message.success('操作成功');
+                this.$refs[formName].resetFields();
+                this.$router.push('/extraAward')
+                bus.$emit('isRefreshExtraAward', true)
+            }).catch((err) => {
+              console.log(err.message);
+            });
+          } else {
+            return false;
+          }
+        });
+      }
+
     },
     toEdit() {
       this.noEdit = false

@@ -6,8 +6,8 @@ import router from '../router';
 axios.defaults.timeout = 10000;
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 
-let baseUrl = 'http://123.56.99.109:8080'
 
+let baseUrl = process.env.VUE_APP_BASEURL
 
 let requestCount = 0    //请求数量
 //显示loading
@@ -53,7 +53,7 @@ axios.interceptors.response.use(
     }
     if (res.data.code === 200) {
       return res
-    }else if (res.data.code === 401) {
+    } else if (res.data.code === 401) {
       Message({
         message: '账户过期，请重新登录',
         type: 'error',
@@ -86,7 +86,7 @@ axios.interceptors.response.use(
         duration: 2000
       })
     }
-    
+
   },
   err => {
     //console.log(err.response.status)

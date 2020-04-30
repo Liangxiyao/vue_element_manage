@@ -4,9 +4,7 @@
     <v-sidebar></v-sidebar>
     <div class="content-box"
          :class="{'content-collapse':collapse}">
-      <page-header :title="title"
-                   :refreshBtn="true"
-                   :gobackBtn="true"></page-header>
+      <page-header></page-header>
       <div class="content">
         <transition name="move"
                     mode="out-in">
@@ -28,7 +26,6 @@ import bus from './bus';
 export default {
   data() {
     return {
-      title:[],
       collapse: false
     };
   },

@@ -3,7 +3,7 @@
     <div class="title">{{$route.meta.title}}</div>
     <el-button type="info"
                plain
-               v-if="$route.path !='/index'"
+               v-show="$route.meta.showBackBtn"
                @click="goBack">返回</el-button>
   </div>
 </template>
@@ -13,8 +13,7 @@ export default {
   methods: {
     goBack() {
       this.$router.back(-1)
-    },
-
+    }
   }
 }
 </script>

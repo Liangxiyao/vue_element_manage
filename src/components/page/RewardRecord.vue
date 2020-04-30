@@ -85,7 +85,7 @@
 <script>
 import { apiRecordList, apiAwardsInfo } from '@/utils/api';
 import MyPagination from '@/components/common/Pagination';
-import {getDate} from '@/utils/base.js';
+import { getDate } from '@/utils/base.js';
 export default {
   components: {
     MyPagination,
@@ -141,17 +141,16 @@ export default {
     //获取活动名称
     _getAwardsInfo() {
       apiAwardsInfo().then((result) => {
-        if (result.code === 200) {
-          this.nameOptions = result.data
-          //默认的活动名称
-          let { awardId, beginDate, endDate } = result.data[0]
-          this.query.awardId = awardId
-          this.optionalDate = {
-            beginDate,
-            endDate
-          }
-          this._getRecordList()
+        this.nameOptions = result.data
+        //默认选择的活动名称
+        let { awardId, beginDate, endDate } = result.data[0]
+        this.query.awardId = awardId
+        this.optionalDate = {
+          beginDate,
+          endDate
         }
+        this._getRecordList()
+
       }).catch((err) => {
         console.log(err.message)
       });
@@ -161,16 +160,13 @@ export default {
       let data = Object.assign(this.query, this.pagination)
       delete data.total
       apiRecordList(data).then((result) => {
-        if (result.code === 200) {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows.map(item=>{
-
-            item.createTime = getDate(item.createTime)
-            return item
-          })
-          console.log(this.tableData)
-        }
+        let { total, rows } = result
+        this.pagination.total = total
+        //处理一下时间
+        this.tableData = rows.map(item => {
+          item.createTime = getDate(item.createTime)
+          return item
+        })
       }).catch((err) => {
         console.log(err.message)
       });

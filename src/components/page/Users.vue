@@ -140,13 +140,9 @@ export default {
     //获取列表
     _getUerList() {
       apiUsers(this.pagination).then((result) => {
-        if (result.code === 200) {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows
-        } else {
-          this.$message.error(result.msg);
-        }
+        let { total, rows } = result
+        this.pagination.total = total
+        this.tableData = rows
       }).catch((err) => {
         console.log(err.message)
       });
@@ -159,16 +155,11 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let data = this.addform
-          apiAddUser(data).then((result) => {
-            if (result.code === 200) {
-              this.$message.success("添加成功")
-              this.tableData.push(data)
-              this.addVisible = false
-              this.addform = {}
-
-            } else {
-              this.$message.error(result.msg)
-            }
+          apiAddUser(data).then(() => {
+            this.$message.success("添加成功")
+            this.tableData.push(data)
+            this.addVisible = false
+            this.addform = {}
           }).catch((err) => {
             console.log(err.message)
           });

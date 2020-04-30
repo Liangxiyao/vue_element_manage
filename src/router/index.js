@@ -14,13 +14,7 @@ const router = new Router({
     {
       path: '/',
       component: () => import('../components/common/Home.vue'),
-      meta: { title: '' },
       children: [
-        {
-          path: '/time',
-          component: () => import('../components/page/time.vue'),
-          meta: { title: 'time' }
-        },
         {
           path: '/index',
           component: () => import('../components/page/Index.vue'),
@@ -35,7 +29,7 @@ const router = new Router({
           path: '/addPrize',
           name: 'addPrize',
           component: () => import('../components/page/AddPrize.vue'),
-          meta: { title: '添加活动' },
+          meta: { title: '添加活动', showBackBtn: true },
         },
         {
           path: '/extraAward',
@@ -45,12 +39,12 @@ const router = new Router({
         {
           path: '/setExtraAward',
           component: () => import('../components/page/SetExtraAward.vue'),
-          meta: { title: '新建奖品' }
+          meta: { title: '新建奖品', showBackBtn: true  }
         },
         {
           path: '/extraRecordList',
           component: () => import('../components/page/ExtraRecordList.vue'),
-          meta: { title: '特殊奖项抽中名单' }
+          meta: { title: '特殊奖项抽中名单', showBackBtn: true  }
         },
         {
           path: '/rewardRecord',
@@ -65,7 +59,7 @@ const router = new Router({
         {
           path: '/useRecord',
           component: () => import('../components/page/UseRecord.vue'),
-          meta: { title: '操作记录' },
+          meta: { title: '操作记录', showBackBtn: true  },
         },
         {
           path: '/404',

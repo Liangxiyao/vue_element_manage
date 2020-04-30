@@ -57,7 +57,7 @@ export default {
       apiGetCode().then((result) => {
         if (result.code === 200) {
           //let { verifyKey, uuid } = result;
-         // storage.set('verifyKey', verifyKey)
+          // storage.set('verifyKey', verifyKey)
           //storage.set('uuid', uuid)
         }
       }).catch((err) => {
@@ -75,16 +75,11 @@ export default {
             //uuid: storage.get('uuid') || ''
           }
           apiLogin(data).then((result) => {
-            if (result.code == 200) {
-              storage.set("users", {
-                username,
-                token: result.token
-              })
-              this.$router.replace('/index');
-
-            } else {
-              this.$message.success(result.msg);
-            }
+            storage.set("users", {
+              username,
+              token: result.token
+            })
+            this.$router.replace('/index');
           }).catch((err) => {
             console.log(err.message);
           });

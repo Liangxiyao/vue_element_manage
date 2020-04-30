@@ -86,6 +86,7 @@ export default {
     this._getExtraAward()
   },
   activated() {
+    //是否重新请求列表
     bus.$on('isRefreshExtraAward', (param) => {
       if (param) {
         this._getExtraAward()
@@ -100,13 +101,9 @@ export default {
         pageNum,
         pageSize,
       }).then((result) => {
-        if (result.code === 200) {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows
-        } else {
-          this.$message.error(result.msg);
-        }
+        let { total, rows } = result
+        this.pagination.total = total
+        this.tableData = rows
       }).catch((err) => {
         console.log(err.message);
       });
@@ -118,13 +115,11 @@ export default {
           center: true,
           customClass: 'stopDialog'
         }).then(() => {
-          apiSwitchExtra({ awardId: row.id }).then((result) => {
-            if (result.code === 200) {
-              this.$set(this.tableData[index], "awardStatus", 1)
-              this.$message.success('该活动已停止')
-            } else {
-              this.$message.error(result.msg)
-            }
+          apiSwitchExtra({
+            awardId: row.id
+          }).then(() => {
+            this.$set(this.tableData[index], "awardStatus", 1)
+            this.$message.success('该活动已停止')
           }).catch((err) => {
             console.log(err.message)
           });
@@ -134,13 +129,11 @@ export default {
           center: true,
           customClass: 'stopDialog'
         }).then(() => {
-          apiSwitchExtra({ awardId: row.id }).then((result) => {
-            if (result.code === 200) {
-              this.$set(this.tableData[index], "awardStatus", 0)
-              this.$message.success('该活动已启用')
-            } else {
-              this.$message.error(result.msg)
-            }
+          apiSwitchExtra({
+            awardId: row.id
+          }).then(() => {
+            this.$set(this.tableData[index], "awardStatus", 0)
+            this.$message.success('该活动已启用')
           }).catch((err) => {
             console.log(err.message)
           });
@@ -168,52 +161,7 @@ export default {
 }
 </script>
 
-<style scoped>
-.bt {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-.bt .el-button {
-  width: 160px;
-  font-size: 14px;
-  height: 46px;
-  line-height: 20px;
-}
-.el-dialog__footer .el-button {
-  position: relative;
-  top: -20px;
-}
+<style scope>
+@import url(~assets/css/table.css);
 
-.addDialog >>> .el-input {
-  width: 120px;
-  float: left;
-  margin-right: 10px;
-}
-.addDialog .tip {
-  font-size: 12px;
-  color: #888;
-  height: 32px;
-  line-height: 1;
-}
-.el-pagination {
-  margin-top: 5px;
-}
-</style>
-<style >
-.stopDialog {
-  width: 360px;
-}
-.stopDialog .el-message-box__message {
-  font-size: 16px;
-}
-.stopDialog .el-button {
-  width: 100px;
-  margin-top: 20px;
-  font-size: 14px;
-}
-.el-date-editor.el-input__inner {
-  width: auto;
-}
 </style>

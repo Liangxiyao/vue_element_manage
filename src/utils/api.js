@@ -16,8 +16,8 @@ export const apiCaculate = p => post('/system/award/caculate', p) //计算值
 export const apiDeleteAward = p => get('/system/award/deleteAward', p)  //删除活动
 export const apiStopAward = p => get('/system/award/switchAward', p)  //停止活动
 export const apiExportRecord = p => get('/system/award/exportRecord', p)  //导出活动数据
-export const apiAppendPrize = p => get('/system/award/additonalAward', p)  //追加
-export const apiAppendTime = p => get('/system/award/changeAwardTime', p)  //延长时间
+export const apiAppendPrize = p => post('/system/award/additonalAward', p)  //追加
+export const apiAppendTime = p => post('/system/award/changeAwardTime', p)  //延长时间
 
 
 export const apiExtraAward = p => get('/system/award/extraList', p)  //特殊奖项列表

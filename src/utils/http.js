@@ -72,13 +72,13 @@ axios.interceptors.response.use(
         type: 'error',
         duration: 2000
       })
-      // 清除token
-      storage.clear();
-      // 跳转登陆页
-      router.replace({
-        path: 'login',
-        query: { redirect: router.currentRoute.fullPath }
-      })
+      // // 清除token
+      // storage.clear();
+      // // 跳转登陆页
+      // router.replace({
+      //   path: 'login',
+      //   query: { redirect: router.currentRoute.fullPath }
+      // })
     } else {
       Message({
         message: res.data.msg,

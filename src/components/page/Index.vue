@@ -8,27 +8,27 @@
           </div>
           <div class="card-item">
             <span class="name">今日参与人数</span>
-            <span class="number">{{dataItem.dayNumber}}</span>
+            <span class="number">{{ dataItem.dayNumber }}</span>
           </div>
           <div class="card-item">
             <span class="name">今日抽奖金额</span>
-            <span class="number">{{dataItem.dayAmount}}</span>
+            <span class="number">{{ dataItem.dayAmount }}</span>
           </div>
           <div class="card-item">
             <span class="name">本周参与人数</span>
-            <span class="number">{{dataItem.weekNumber}}</span>
+            <span class="number">{{ dataItem.weekNumber }}</span>
           </div>
           <div class="card-item">
             <span class="name">本周抽奖金额</span>
-            <span class="number">{{dataItem.weekNumber}}</span>
+            <span class="number">{{ dataItem.weekAmount }}</span>
           </div>
           <div class="card-item">
             <span class="name">本月参与人数</span>
-            <span class="number">{{dataItem.monthNumber}}</span>
+            <span class="number">{{ dataItem.monthNumber }}</span>
           </div>
           <div class="card-item">
             <span class="name">本月抽奖金额</span>
-            <span class="number">{{dataItem.monthNumber}}</span>
+            <span class="number">{{ dataItem.monthAmount }}</span>
           </div>
         </el-card>
       </el-col>
@@ -39,27 +39,27 @@
           </div>
           <div class="card-item">
             <span class="name">平均今日获得活力红包金额</span>
-            <span class="number">{{dataItem.dayVigourAverage}}</span>
+            <span class="number">{{ dataItem.dayVigourAverage }}</span>
           </div>
           <div class="card-item">
             <span class="name">达星红包金额</span>
-            <span class="number">{{dataItem.dayStandardAverage}}</span>
+            <span class="number">{{ dataItem.dayStandardAverage }}</span>
           </div>
           <div class="card-item">
             <span class="name">平均本周获得活力红包金额</span>
-            <span class="number">{{dataItem.weekVigourAverage}}</span>
+            <span class="number">{{ dataItem.weekVigourAverage }}</span>
           </div>
           <div class="card-item">
             <span class="name">达星红包金额</span>
-            <span class="number">{{dataItem.weekStandardAverage}}</span>
+            <span class="number">{{ dataItem.weekStandardAverage }}</span>
           </div>
           <div class="card-item">
             <span class="name">平均本月获得活力红包金额</span>
-            <span class="number">{{dataItem.monthVigourAverage}}</span>
+            <span class="number">{{ dataItem.monthVigourAverage }}</span>
           </div>
           <div class="card-item">
             <span class="name">达星红包金额</span>
-            <span class="number">{{dataItem.monthStandardAverage}}</span>
+            <span class="number">{{ dataItem.monthStandardAverage }}</span>
           </div>
         </el-card>
       </el-col>
@@ -70,18 +70,22 @@
           </div>
           <div class="card-item">
             <span class="name">剩余金额</span>
-            <span class="number">{{dataItem.leftAmount}}</span>
+            <span class="number">{{ dataItem.leftAmount }}</span>
           </div>
           <div class="card-item">
             <span class="name">预计剩余可参与人数</span>
-            <span class="number">{{dataItem.leftNumber}}</span>
+            <span class="number">{{ dataItem.leftNumber }}</span>
           </div>
         </el-card>
       </el-col>
     </el-row>
     <el-card class="box-card module2" shadow="hover">
       <div slot="header" class="clearfix">最近7天参与量统计</div>
-      <div id="myChart" ref="myChart" :style="{width: '100%', height: '360px'}"></div>
+      <div
+        id="myChart"
+        ref="myChart"
+        :style="{ width: '100%', height: '360px' }"
+      ></div>
     </el-card>
   </div>
 </template>
@@ -95,7 +99,7 @@ require('echarts/lib/chart/line')
 export default {
   data() {
     return {
-      dataItem: {}
+      dataItem: {},
     }
   },
   mounted() {
@@ -104,47 +108,47 @@ export default {
   methods: {
     _getData() {
       apiIndexInfo()
-        .then(result => {
+        .then((result) => {
           this.dataItem = result.data
           this.drawLine()
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.message)
         })
     },
     drawLine() {
       let sevenDayMap = this.dataItem.sevenDayMap.reverse()
-      let xData = sevenDayMap.map(item => item.date)
-      let yData = sevenDayMap.map(item => item.count)
+      let xData = sevenDayMap.map((item) => item.date)
+      let yData = sevenDayMap.map((item) => item.count)
       //初始化echarts实例
       let myChart = echarts.init(this.$refs.myChart)
       // 绘制图表
       myChart.setOption({
         xAxis: {
-          data: xData
+          data: xData,
         },
         yAxis: {
           type: 'value',
-          name: '人数'
+          name: '人数',
         },
         axisLabel: {
-          color: '#666'
+          color: '#666',
         },
         series: [
           {
             type: 'line',
             data: yData,
             itemStyle: {
-              color: '#409EFF'
+              color: '#409EFF',
             },
             label: {
-              show: true
-            }
-          }
-        ]
+              show: true,
+            },
+          },
+        ],
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -1,12 +1,9 @@
 <template>
   <div class="page-index">
-    <el-row :gutter="10"
-            class="module1">
+    <el-row :gutter="10" class="module1">
       <el-col :span="8">
-        <el-card class="box-card"
-                 shadow="hover">
-          <div slot="header"
-               class="clearfix">
+        <el-card class="box-card" shadow="hover">
+          <div slot="header" class="clearfix">
             <span>实时抽奖</span>
           </div>
           <div class="card-item">
@@ -36,10 +33,8 @@
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card class="box-card"
-                 shadow="hover">
-          <div slot="header"
-               class="clearfix">
+        <el-card class="box-card" shadow="hover">
+          <div slot="header" class="clearfix">
             <span>平均类</span>
           </div>
           <div class="card-item">
@@ -69,10 +64,8 @@
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card class="box-card"
-                 shadow="hover">
-          <div slot="header"
-               class="clearfix">
+        <el-card class="box-card" shadow="hover">
+          <div slot="header" class="clearfix">
             <span>剩余库存</span>
           </div>
           <div class="card-item">
@@ -86,26 +79,18 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-card class="box-card module2"
-             shadow="hover">
-      <div slot="header"
-           class="clearfix">
-        最近一周参与量统计
-      </div>
-      <div id="myChart"
-           ref="myChart"
-           :style="{width: '100%', height: '360px'}"></div>
-
+    <el-card class="box-card module2" shadow="hover">
+      <div slot="header" class="clearfix">最近7天参与量统计</div>
+      <div id="myChart" ref="myChart" :style="{width: '100%', height: '360px'}"></div>
     </el-card>
   </div>
 </template>
 
 <script>
-import { apiIndexInfo } from '@/utils/api';
+import { apiIndexInfo } from '@/utils/api'
 
 let echarts = require('echarts/lib/echarts')
 require('echarts/lib/chart/line')
-
 
 export default {
   data() {
@@ -118,19 +103,21 @@ export default {
   },
   methods: {
     _getData() {
-      apiIndexInfo().then((result) => {
+      apiIndexInfo()
+        .then(result => {
           this.dataItem = result.data
-          this.drawLine();
-      }).catch((err) => {
-        console.log(err.message)
-      });
+          this.drawLine()
+        })
+        .catch(err => {
+          console.log(err.message)
+        })
     },
     drawLine() {
-      let sevenDayMap= this.dataItem.sevenDayMap.reverse()
-      let xData = sevenDayMap.map((item) => item.date)
-      let yData = sevenDayMap.map((item) => item.count)
+      let sevenDayMap = this.dataItem.sevenDayMap.reverse()
+      let xData = sevenDayMap.map(item => item.date)
+      let yData = sevenDayMap.map(item => item.count)
       //初始化echarts实例
-      let myChart = echarts.init(this.$refs.myChart);
+      let myChart = echarts.init(this.$refs.myChart)
       // 绘制图表
       myChart.setOption({
         xAxis: {
@@ -138,24 +125,26 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '人数',
+          name: '人数'
         },
         axisLabel: {
           color: '#666'
         },
-        series: [{
-          type: 'line',
-          data: yData,
-          itemStyle: {
-            color: '#409EFF'
-          },
-          label: {
-            show: true
+        series: [
+          {
+            type: 'line',
+            data: yData,
+            itemStyle: {
+              color: '#409EFF'
+            },
+            label: {
+              show: true
+            }
           }
-        }]
-      });
+        ]
+      })
     }
-  },
+  }
 }
 </script>
 
@@ -169,7 +158,7 @@ export default {
 .box-card >>> .card-item {
   display: flex;
   line-height: 25px;
-  font-size:14px;
+  font-size: 14px;
 }
 .box-card >>> .card-item:nth-of-type(2n) {
   margin-bottom: 30px;

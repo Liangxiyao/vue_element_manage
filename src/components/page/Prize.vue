@@ -356,8 +356,9 @@ export default {
             .then((result) => {
               this.$message.success('导出成功')
               this.exportVisible = false
-              window.location.href = result.msg
+              //window.location.href = result.msg
               this.$refs[formName].resetFields()
+              window.open(result.msg)
             })
             .catch((err) => {
               console.log(err.message)

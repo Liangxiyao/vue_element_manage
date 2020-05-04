@@ -56,7 +56,7 @@ export default {
     },
     changePage(val) {
       this.pagination.pageNum = val
-      this._getAwardList()
+      this._getLists()
     },
     //导出数据
     exportData() {
@@ -69,7 +69,8 @@ export default {
         })
           .then((result) => {
             this.$message.success('导出成功')
-            window.location.href = result.msg
+            // window.location.href = result.msg
+            window.open(result.msg)
           })
           .catch((err) => {
             console.log(err.message)

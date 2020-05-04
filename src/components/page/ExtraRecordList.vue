@@ -46,7 +46,9 @@ export default {
         ...this.pagination,
       })
         .then((result) => {
-          this.tableData = result.rows
+          let { total, rows } = result
+          this.pagination.total = total
+          this.tableData = rows
         })
         .catch((err) => {
           console.log(err.message)

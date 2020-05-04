@@ -175,7 +175,8 @@ export default {
             vigourName: vigourName || vigourAmount,
           }
           let data = Object.assign(this.formData, resObj)
-
+          delete data.awardAmount
+          delete data.vigourAmount
           if (this.noEdit) {
             apiEditExtraAward(data)
               .then(() => {

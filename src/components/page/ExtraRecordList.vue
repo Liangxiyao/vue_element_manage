@@ -62,7 +62,9 @@ export default {
         center: true,
         customClass: 'stopDialog',
       }).then(() => {
-        apiExportExtraRecord()
+        apiExportExtraRecord({
+          id: this.awardId,
+        })
           .then((result) => {
             this.$message.success('导出成功')
             window.location.href = result.msg

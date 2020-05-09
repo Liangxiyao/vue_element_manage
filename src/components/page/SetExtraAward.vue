@@ -150,22 +150,33 @@ export default {
     //是否可编辑
     let row = storage.get('extraAward')
     if (this.noEdit && row) {
+      let { awardType, vigourName, awardName } = row
       this.formData = row
+      if (awardType == '1') {
+        this.$set(this.formData, 'vigourAmount', vigourName)
+        this.$set(this.formData, 'awardAmount', awardName)
+      }
     }
+  },
+  beforeDestroy() {
+    bus.$off('isRefreshExtraAward');
   },
   methods: {
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          let {
-            awardName,
-            awardAmount,
-            vigourName,
-            vigourAmount,
-          } = this.formData
-          let resObj = {
-            awardName: awardName || awardAmount,
-            vigourName: vigourName || vigourAmount,
+          let { awardType, awardName, awardAmount, vigourName, vigourAmount } = this.formData;
+          let resObj;
+          if (awardType == '1') {
+            resObj = {
+              awardName: awardAmount,
+              vigourName: vigourAmount,
+            }
+          } else {
+            resObj = {
+              awardName,
+              vigourName,
+            }
           }
           let data = Object.assign(this.formData, resObj)
           delete data.awardAmount
@@ -193,11 +204,7 @@ export default {
           return false
         }
       })
-    },
-    toEdit() {
-      this.noEdit = false
-      storage.set('disabled', this.noEdit)
-    },
+    }
   },
 }
 </script>

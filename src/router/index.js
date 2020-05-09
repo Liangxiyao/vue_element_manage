@@ -23,7 +23,7 @@ const router = new Router({
         {
           path: '/prize',
           component: () => import('../components/page/Prize.vue'),
-          meta: { title: '活动列表' },
+          meta: { title: '活动列表',refresh:false },
         },
         {
           path: '/addPrize',

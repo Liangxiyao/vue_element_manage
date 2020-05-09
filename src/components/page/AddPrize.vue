@@ -283,7 +283,6 @@ export default {
           return timeDate < nowDate
         }
       }
-
     }
   },
   created() {
@@ -296,6 +295,10 @@ export default {
   },
   mounted() {
     this._getAwardsTime();
+  },
+  //使用bus的组件中别忘了再beforDestroy函数中销毁bus，不销毁的话会一直叠加的调用这个方法
+  beforeDestroy() {
+    bus.$off('isRefreshPrize');
   },
   methods: {
     _getAwardsTime() {

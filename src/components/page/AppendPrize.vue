@@ -59,6 +59,16 @@
           <div>当前浮动比例：{{ row.floatRange }}</div>
         </div>
       </el-form-item>
+      <el-form-item label="0元红包显示方式">
+        <el-select v-model="appendForm.zeroDisplay"
+                   class="handle-select"
+                   :disabled="noEdit">
+          <el-option label="很遗憾未抽中"
+                     value="1"></el-option>
+          <el-option label="直接显示0元"
+                     value="2"></el-option>
+        </el-select>
+      </el-form-item>
     </el-form>
     <span slot="footer"
           class="dialog-footer">
@@ -83,6 +93,7 @@ export default {
         addWeakenLine: '',
         addGroupNumber: '',
         addFloatRange: '',
+        zeroDisplay:'1'
       },
       rules: {
         addAwardAmount: [
@@ -200,6 +211,10 @@ export default {
       let { addExpectNumbers } = this.appendForm
       return parseInt(addExpectNumbers * 1 + leftNumberCount * 1)
     },
+  },
+  //使用bus的组件中别忘了再beforDestroy函数中销毁bus，不销毁的话会一直叠加的调用这个方法
+  beforeDestroy() {
+    bus.$off('isRefreshPrize');
   },
   methods: {
     saveAdd(formName) {

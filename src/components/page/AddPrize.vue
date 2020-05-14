@@ -27,13 +27,24 @@
                         @blur="caculateHandle">
         </el-date-picker>
       </el-form-item>
-      <el-form-item class="block"
+      <el-form-item
                     label="活力红包与达星红包比"
                     prop="envelopeProportion">
         <el-input v-model="formData.envelopeProportion"
                   placeholder="如 活力1：达星3 = 0.33，请输入0.33"
                   :disabled="noEdit"
                   @blur="caculateHandle"></el-input>
+      </el-form-item>
+      <el-form-item label="0元红包显示方式"
+                    prop="awardType">
+        <el-select v-model="formData.zeroDisplay"
+                   class="handle-select"
+                   :disabled="noEdit">
+          <el-option label="很遗憾未抽中"
+                     value="1"></el-option>
+          <el-option label="直接显示0元"
+                     value="2"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="预计参与抽奖人数"
                     prop="expectNumbers">
@@ -154,7 +165,8 @@ export default {
         floatRange: '',
         groupNumber: '',
         weakenLine: '',
-        date: []
+        date: [],
+        zeroDisplay: '1',
       },
       havedDate: [], //已经存在的活动时间
       isCaculate: false, //是否已经计算

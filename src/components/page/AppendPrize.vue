@@ -62,7 +62,7 @@
       <el-form-item label="0元红包显示方式">
         <el-select v-model="appendForm.zeroDisplay"
                    class="handle-select"
-                   :disabled="noEdit">
+                   >
           <el-option label="很遗憾未抽中"
                      value="1"></el-option>
           <el-option label="直接显示0元"

@@ -11,6 +11,7 @@ export const apiAwardList = p => get('/system/award/awardList', p)  //奖项列�
 export const apiAwardsInfo = p => get('/system/award/getAwardsInfo', p)
 export const apiRecordList = p => get('/system/award/recordList', p)  //抽奖记录
 export const apiAddAward = p => post('/system/award/addAward', p) //添加活动
+export const apiEditAward = p => post('/system/award/editAward', p) //编辑活动
 export const apiAwardsTime = p => get('/system/award/getAwardsTime', p) //活动时间
 export const apiCaculate = p => post('/system/award/caculate', p) //计算值
 export const apiDeleteAward = p => get('/system/award/deleteAward', p)  //删除活动

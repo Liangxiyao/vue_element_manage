@@ -80,7 +80,7 @@
             <span class="number">{{ dataItem.leftAmount }}</span>
           </div>
           <div class="card-item">
-            <span class="name">预计剩余可参与人数</span>
+            <span class="name">预计剩余可参与人次</span>
             <span class="number">{{ dataItem.leftNumber }}</span>
           </div>
         </el-card>

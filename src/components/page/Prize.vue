@@ -205,7 +205,6 @@ export default {
     this._getAwardList()
   },
   activated() {
-    console.log(this.$route.meta)
     bus.$on('isRefreshPrize', (param) => {
       if (param) {
         this._getAwardList()

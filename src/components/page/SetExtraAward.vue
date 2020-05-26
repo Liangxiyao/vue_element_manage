@@ -90,10 +90,12 @@ export default {
           { required: true, message: '此项为必填项', trigger: 'change' }
         ],
         vigourName: [
-          { required: true, message: '此项为必填项', trigger: 'blur' }
+          { required: true, message: '此项为必填项', trigger: 'blur' },
+          { max: 8, message: '奖品最多设置8个汉字', trigger: 'blur' }
         ],
         awardName: [
-          { required: true, message: '此项为必填项', trigger: 'blur' }
+          { required: true, message: '此项为必填项', trigger: 'blur' },
+          { max: 8, message: '奖品最多设置8个汉字', trigger: 'blur' }
         ],
         vigourAmount: [
           { required: true, validator: checkAwardAmount, trigger: 'blur' }
@@ -115,22 +117,39 @@ export default {
     //是否可编辑
     let row = storage.get('extraAward')
     if (this.noEdit && row) {
+      let { awardType, vigourName, awardName } = row
       this.formData = row
+      if (awardType == '1') {
+        this.$set(this.formData, 'vigourAmount', vigourName)
+        this.$set(this.formData, 'awardAmount', awardName)
+      }
     }
+  },
+  beforeDestroy() {
+    bus.$off('isRefreshExtraAward')
   },
   methods: {
     onSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let {
+            awardType,
             awardName,
             awardAmount,
             vigourName,
             vigourAmount
           } = this.formData
-          let resObj = {
-            awardName: awardName || awardAmount,
-            vigourName: vigourName || vigourAmount
+          let resObj
+          if (awardType == '1') {
+            resObj = {
+              awardName: awardAmount,
+              vigourName: vigourAmount
+            }
+          } else {
+            resObj = {
+              awardName,
+              vigourName
+            }
           }
           let data = Object.assign(this.formData, resObj)
           delete data.awardAmount
@@ -162,10 +181,6 @@ export default {
           return false
         }
       })
-    },
-    toEdit() {
-      this.noEdit = false
-      storage.set('disabled', this.noEdit)
     }
   }
 }

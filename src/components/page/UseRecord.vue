@@ -1,15 +1,25 @@
 <template>
   <div class="useRecord">
-    <el-table :data="tableData" class="mytable" border>
-      <el-table-column prop="operTime" label="操作日期" width="200">
+    <el-table :data="tableData"
+              class="mytable"
+              border>
+      <el-table-column prop="operTime"
+                       label="操作日期"
+                       width="200">
       </el-table-column>
-      <el-table-column prop="userName" label="账号ID" width="160">
+      <el-table-column prop="userName"
+                       label="账号ID"
+                       width="160">
       </el-table-column>
-      <el-table-column prop="nickName" label="姓名" width="180">
+      <el-table-column prop="nickName"
+                       label="姓名"
+                       width="180">
       </el-table-column>
-      <el-table-column prop="operContent" label="操作"> </el-table-column>
+      <el-table-column prop="operContent"
+                       label="操作"> </el-table-column>
     </el-table>
-    <my-pagination :pagination="pagination"></my-pagination>
+    <my-pagination :pagination="pagination"
+                   @changePage="changePage"></my-pagination>
   </div>
 </template>
 
@@ -45,15 +55,17 @@ export default {
   methods: {
     _getLogs() {
       let data = this.pagination
-      apiLogList(data)
-        .then((result) => {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows
-        })
-        .catch((err) => {
-          console.log(err.message)
-        })
+      apiLogList(data).then((result) => {
+        let { total, rows } = result
+        this.pagination.total = total
+        this.tableData = rows
+      }).catch((err) => {
+        console.log(err.message)
+      })
+    },
+    changePage(val) {
+      this.pagination.pageNum = val
+      this._getLogs()
     },
   },
 }

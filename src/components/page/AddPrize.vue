@@ -27,13 +27,24 @@
                         @blur="caculateHandle">
         </el-date-picker>
       </el-form-item>
-      <el-form-item class="block"
-                    label="活力红包与达星红包比"
+      <el-form-item label="活力红包与达星红包比"
                     prop="envelopeProportion">
         <el-input v-model="formData.envelopeProportion"
                   placeholder="如 活力1：达星3 = 0.33，请输入0.33"
                   :disabled="noEdit"
                   @blur="caculateHandle"></el-input>
+      </el-form-item>
+      <el-form-item label="0元红包显示方式"
+                    prop="awardType">
+        <el-select v-model="formData.zeroDisplay"
+                   class="handle-select"
+                   @change="caculateHandle"
+                   :disabled="noEdit">
+          <el-option label="很遗憾未抽中"
+                     value="1"></el-option>
+          <el-option label="直接显示0元"
+                     value="2"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="预计参与抽奖人数"
                     prop="expectNumbers">
@@ -137,7 +148,7 @@
 
 <script>
 import storage from '@/utils/storage.js';
-import { apiAddAward, apiCaculate, apiAwardsTime } from '@/utils/api.js';
+import { apiAddAward, apiEditAward, apiCaculate, apiAwardsTime } from '@/utils/api.js';
 import bus from '../common/bus';
 export default {
   name: 'addPrize',
@@ -154,7 +165,8 @@ export default {
         floatRange: '',
         groupNumber: '',
         weakenLine: '',
-        date: []
+        date: [],
+        zeroDisplay: '1',
       },
       havedDate: [], //已经存在的活动时间
       isCaculate: false, //是否已经计算
@@ -275,6 +287,7 @@ export default {
         }]
       },
       noEdit: storage.get('disabled'),
+      isEditStatus: false,
       //可选日期范围
       pickerOptions: {
         disabledDate: (time) => {
@@ -283,19 +296,26 @@ export default {
           return timeDate < nowDate
         }
       }
-
     }
   },
   created() {
+    console.log(this.noEdit)
     //是否可编辑
     let row = storage.get('award')
+
     if (this.noEdit && row) {
+      console.log(this.noEdit)
       this.formData = row
+      this.isEditStatus = true
       this.$set(this.formData, "date", [row.beginDate, row.endDate])
     }
   },
   mounted() {
     this._getAwardsTime();
+  },
+  //使用bus的组件中别忘了再beforDestroy函数中销毁bus，不销毁的话会一直叠加的调用这个方法
+  beforeDestroy() {
+    bus.$off('isRefreshPrize');
   },
   methods: {
     _getAwardsTime() {
@@ -312,26 +332,40 @@ export default {
           let { date } = this.formData
           this.$set(this.formData, "beginDate", date[0])
           this.$set(this.formData, "endDate", date[1])
-
-          apiAddAward({
-            ...this.formData,
-            ...this.caculate
-          }).then(() => {
-            this.$message.success('添加成功');
-            this.$refs[formName].resetFields();
-            this.$router.push('/prize')
-            bus.$emit('isRefreshPrize', true)
-          }).catch((err) => {
-            console.log(err.message);
-          });
+          if (this.isEditStatus) {
+            apiEditAward({
+              ...this.formData,
+              ...this.caculate
+            }).then(() => {
+              this.$message.success('修改成功');
+              this.$refs[formName].resetFields();
+              this.$router.push('/prize')
+              bus.$emit('isRefreshPrize', true)
+            }).catch((err) => {
+              console.log(err.message);
+            });
+          } else {
+            apiAddAward({
+              ...this.formData,
+              ...this.caculate
+            }).then(() => {
+              this.$message.success('添加成功');
+              this.$refs[formName].resetFields();
+              this.$router.push('/prize')
+              bus.$emit('isRefreshPrize', true)
+            }).catch((err) => {
+              console.log(err.message);
+            });
+          }
         } else {
+          this.$message.error('请确认是否填写完整并计算');
           return false;
         }
       });
     },
-    toEdit() {
+    toEdit() { 
       this.noEdit = false
-      storage.set('disabled', this.noEdit)
+      //storage.set('disabled', this.noEdit)
     },
     caculateHandle() {
       let { awardName, startAwardAmount, date, expectNumbers, envelopeProportion, floatRange, groupNumber, weakenLine } = this.formData

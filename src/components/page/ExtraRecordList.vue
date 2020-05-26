@@ -1,17 +1,23 @@
 <template>
   <div class="useRecord">
-    <el-table :data="tableData" class="mytable" border>
-      <el-table-column prop="agentCode" label="员工工号"> </el-table-column>
-      <el-table-column prop="awardName" label="活动名称"> </el-table-column>
-      <el-table-column prop="extraAward" label="奖品"> </el-table-column>
-      <el-table-column prop="createTime" label="抽奖时间"> </el-table-column>
+    <el-table :data="tableData"
+              class="mytable"
+              border>
+      <el-table-column prop="agentCode"
+                       label="员工工号"> </el-table-column>
+      <el-table-column prop="awardName"
+                       label="活动名称"> </el-table-column>
+      <el-table-column prop="extraAward"
+                       label="奖品"> </el-table-column>
+      <el-table-column prop="createTime"
+                       label="抽奖时间"> </el-table-column>
     </el-table>
-    <div class="bt" v-if="tableData.length">
-      <el-button type="primary" @click="exportData">导出数据</el-button>
-      <my-pagination
-        :pagination="pagination"
-        @changePage="changePage"
-      ></my-pagination>
+    <div class="bt"
+         v-if="tableData.length">
+      <el-button type="primary"
+                 @click="exportData">导出数据</el-button>
+      <my-pagination :pagination="pagination"
+                     @changePage="changePage"></my-pagination>
     </div>
   </div>
 </template>
@@ -44,15 +50,13 @@ export default {
       apiExtraRecordList({
         awardId: this.awardId,
         ...this.pagination,
+      }).then((result) => {
+        let { total, rows } = result
+        this.pagination.total = total
+        this.tableData = rows
+      }).catch((err) => {
+        console.log(err.message)
       })
-        .then((result) => {
-          let { total, rows } = result
-          this.pagination.total = total
-          this.tableData = rows
-        })
-        .catch((err) => {
-          console.log(err.message)
-        })
     },
     changePage(val) {
       this.pagination.pageNum = val
@@ -66,15 +70,12 @@ export default {
       }).then(() => {
         apiExportExtraRecord({
           id: this.awardId,
+        }).then((result) => {
+          this.$message.success('导出成功')
+          window.open(result.msg)
+        }).catch((err) => {
+          console.log(err.message)
         })
-          .then((result) => {
-            this.$message.success('导出成功')
-            // window.location.href = result.msg
-            window.open(result.msg)
-          })
-          .catch((err) => {
-            console.log(err.message)
-          })
       })
     },
   },
